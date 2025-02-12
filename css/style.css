@@ -1,12 +1,18 @@
 /* 全局变量 */
 :root {
-    --primary-color: #1a237e;  /* 深蓝色主色调 */
-    --secondary-color: #673ab7;  /* 星空紫色调 */
-    --text-color: #333;
-    --light-text: #fff;
-    --background-color: #f5f5f5;
-    --font-primary: 'Roboto', sans-serif;
-    --font-heading: 'Poppins', sans-serif;
+    --primary-color: #0D47A1;    /* 深蓝色主色调 */
+    --secondary-color: #673AB7;  /* 星空紫色调 */
+    --accent-color: #9575CD;     /* 浅紫色强调 */
+    --text-primary: #0D47A1;     /* 主要文字颜色-深蓝 */
+    --text-secondary: #424242;   /* 次要文字颜色-深灰 */
+    --text-light: #FFFFFF;       /* 浅色文字 */
+    --background-light: #F5F5F5; /* 浅灰背景 */
+    --background-white: #FFFFFF; /* 纯白背景 */
+    --nav-bg-color: #0D47A1;    /* 导航栏背景 */
+    --footer-bg-color: #0D47A1; /* 页脚背景 */
+    --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --font-primary: 'Open Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-heading: 'Poppins', 'Roboto', sans-serif;
 }
 
 /* 基础样式重置 */
@@ -19,8 +25,9 @@
 body {
     font-family: var(--font-primary);
     line-height: 1.6;
-    color: var(--text-color);
-    background-color: var(--background-color);
+    font-size: 16px;
+    color: var(--text-primary);
+    background-color: var(--background-light);
 }
 
 /* 导航栏样式 */
@@ -29,108 +36,163 @@ body {
     top: 0;
     left: 0;
     width: 100%;
-    background-color: var(--primary-color);
+    background-color: var(--nav-bg-color);
     padding: 1rem 2rem;
     z-index: 1000;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .nav-brand a {
-    color: var(--light-text);
+    color: var(--text-light);
     text-decoration: none;
-    font-size: 1.5rem;
+    font-family: var(--font-heading);
+    font-size: 24px;
     font-weight: 700;
+    letter-spacing: 0.5px;
+    background: linear-gradient(120deg, var(--text-light), var(--accent-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
 }
 
 .nav-menu {
     display: flex;
     list-style: none;
+    gap: 1.5rem;
 }
 
 .nav-menu li a {
-    color: var(--light-text);
+    color: var(--text-light);
     text-decoration: none;
+    font-size: 16px;
+    font-weight: 500;
     padding: 0.5rem 1rem;
-    transition: color 0.3s ease;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.nav-menu li a::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background: var(--text-light);
+    transition: all 0.3s ease;
+    transform: translateX(-50%);
+}
+
+.nav-menu li a:hover::after {
+    width: 100%;
 }
 
 .nav-menu li a:hover {
-    color: var(--secondary-color);
+    color: var(--accent-color);
 }
 
 .nav-toggle {
     display: none;
     background: none;
     border: none;
-    color: var(--light-text);
-    font-size: 1.5rem;
+    color: var(--text-light);
+    font-size: 24px;
     cursor: pointer;
 }
 
 /* Hero区域样式 */
 .hero {
     height: 100vh;
-    background: linear-gradient(rgba(26, 35, 126, 0.7), rgba(103, 58, 183, 0.7)),
-                url('../images/hero-bg.jpg') center/cover;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
     display: flex;
     align-items: center;
     justify-content: center;
     text-align: center;
     padding: 0 2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('../images/hero-bg.jpg') center/cover;
+    opacity: 0.15;
+    z-index: 1;
 }
 
 .hero-content {
-    max-width: 800px;
-    color: var(--light-text);
+    position: relative;
+    z-index: 2;
+    opacity: 0.5
 }
 
-.hero h1 {
+.hero h2 {
     font-family: var(--font-heading);
-    font-size: 3rem;
-    margin-bottom: 1rem;
+    font-size: 48px;
+    font-weight: 700;
+    color: var(--text-light);
+    margin-bottom: 1.5rem;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
     animation: fadeInDown 1s ease;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .hero .subtitle {
-    font-size: 1.5rem;
-    margin-bottom: 2rem;
+    font-size: 1.8rem;
+    margin-bottom: 2.5rem;
     animation: fadeInUp 1s ease 0.5s;
     animation-fill-mode: both;
+    font-weight: 500;
+    opacity: 0.95;
+    color: var(--accent-color);
+    text-shadow: 0 0 30px rgba(124, 77, 255, 0.3);
 }
 
 /* 按钮样式 */
 .btn {
     display: inline-block;
-    padding: 1rem 2rem;
-    border-radius: 30px;
+    padding: 1rem 2.5rem;
+    border-radius: 980px;
     text-decoration: none;
-    font-weight: 500;
-    transition: transform 0.3s ease;
+    font-weight: 600;
+    transition: all 0.4s ease;
     margin: 0.5rem;
-}
-
-.btn:hover {
-    transform: translateY(-3px);
+    font-size: 1.1rem;
+    letter-spacing: 0.5px;
 }
 
 .btn-primary {
-    background-color: var(--primary-color);
-    color: var(--light-text);
+    background: linear-gradient(120deg, var(--secondary-color), var(--accent-color));
+    color: var(--text-light);
+    border: none;
+    box-shadow: 0 4px 15px rgba(124, 77, 255, 0.3);
+}
+
+.btn-primary:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 6px 20px rgba(124, 77, 255, 0.4);
+    background: linear-gradient(120deg, var(--accent-color), var(--secondary-color));
 }
 
 .btn-secondary {
     background-color: transparent;
-    border: 2px solid var(--light-text);
-    color: var(--light-text);
+    border: 2px solid var(--text-light);
+    color: var(--text-light);
 }
 
 /* 页脚样式 */
 .footer {
-    background-color: var(--primary-color);
-    color: var(--light-text);
+    background-color: var(--footer-bg-color);
+    color: var(--text-light);
     padding: 2rem;
     text-align: center;
 }
@@ -138,49 +200,62 @@ body {
 .footer-content {
     max-width: 1200px;
     margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.copyright {
+    font-size: 14px;
+    opacity: 0.9;
 }
 
 .social-links {
-    margin-top: 1rem;
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
 }
 
 .social-links a {
-    color: var(--light-text);
-    font-size: 1.5rem;
-    margin: 0 1rem;
-    transition: color 0.3s ease;
+    color: var(--text-light);
+    font-size: 20px;
+    transition: all 0.3s ease;
 }
 
 .social-links a:hover {
-    color: var(--secondary-color);
+    color: var(--accent-color);
+    transform: translateY(-2px);
 }
 
 .back-to-top {
     position: fixed;
     bottom: 2rem;
     right: 2rem;
-    background-color: var(--secondary-color);
-    color: var(--light-text);
-    width: 40px;
-    height: 40px;
+    background-color: var(--primary-color);
+    color: var(--text-light);
+    width: 44px;
+    height: 44px;
     border-radius: 50%;
     border: none;
     cursor: pointer;
     display: none;
     align-items: center;
     justify-content: center;
-    transition: background-color 0.3s ease;
+    font-size: 20px;
+    transition: all 0.3s ease;
+    box-shadow: var(--card-shadow);
 }
 
 .back-to-top:hover {
-    background-color: var(--primary-color);
+    background-color: var(--secondary-color);
+    transform: translateY(-2px);
 }
 
 /* 动画 */
 @keyframes fadeInDown {
     from {
         opacity: 0;
-        transform: translateY(-20px);
+        transform: translateY(-30px);
     }
     to {
         opacity: 1;
@@ -191,11 +266,24 @@ body {
 @keyframes fadeInUp {
     from {
         opacity: 0;
-        transform: translateY(20px);
+        transform: translateY(30px);
     }
     to {
         opacity: 1;
         transform: translateY(0);
+    }
+}
+
+/* 添加新的动画效果 */
+@keyframes gradientText {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
     }
 }
 
@@ -207,10 +295,10 @@ body {
         top: 100%;
         left: 0;
         width: 100%;
-        background-color: var(--primary-color);
+        background-color: var(--nav-bg-color);
         padding: 1rem 0;
         flex-direction: column;
-        text-align: center;
+        gap: 0.5rem;
     }
 
     .nav-menu.active {
@@ -219,13 +307,23 @@ body {
 
     .nav-toggle {
         display: block;
+        background: none;
+        border: none;
+        color: var(--text-light);
+        font-size: 24px;
+        cursor: pointer;
     }
 
-    .hero h1 {
-        font-size: 2rem;
+    .hero h2 {
+        font-size: 32px;
     }
 
     .hero .subtitle {
-        font-size: 1.2rem;
+        font-size: 1.4rem;
+    }
+
+    .btn {
+        padding: 0.8rem 2rem;
+        font-size: 1rem;
     }
 } 
