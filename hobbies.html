@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>爱好与习惯 - 杨骞玺的个人博客</title>
+    <meta name="description" content="了解我的爱好与日常习惯">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Poppins:wght@600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .hobbies-section {
+            padding: 120px 2rem 4rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .hobbies-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .hobbies-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .hobby-category {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .hobby-category:hover {
+            transform: translateY(-10px);
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 2rem;
+            color: var(--primary-color);
+        }
+
+        .category-header i {
+            font-size: 2rem;
+            margin-right: 1rem;
+            color: var(--secondary-color);
+        }
+
+        .category-title {
+            font-family: var(--font-heading);
+            font-size: 1.5rem;
+        }
+
+        .hobby-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .hobby-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--background-color);
+        }
+
+        .hobby-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .hobby-icon {
+            font-size: 1.2rem;
+            color: var(--secondary-color);
+            margin-right: 1rem;
+            margin-top: 0.2rem;
+        }
+
+        .hobby-content h4 {
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+            font-family: var(--font-heading);
+        }
+
+        .hobby-content p {
+            color: var(--text-color);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .book-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .book-item {
+            background: var(--background-color);
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .book-item:hover {
+            background: var(--secondary-color);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .book-item i {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        @media screen and (max-width: 768px) {
+            .hobbies-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="nav-brand">
+            <a href="index.html">杨骞玺的个人博客</a>
+        </div>
+        <button class="nav-toggle">
+            <i class="fas fa-bars"></i>
+        </button>
+        <ul class="nav-menu">
+            <li><a href="index.html">首页</a></li>
+            <li><a href="about.html">关于我</a></li>
+            <li><a href="goals.html">我的目标</a></li>
+            <li><a href="skills.html">能力与成就</a></li>
+            <li><a href="tech.html">技术栈</a></li>
+            <li><a href="hobbies.html" class="active">爱好与习惯</a></li>
+        </ul>
+    </nav>
+
+    <!-- 爱好与习惯部分 -->
+    <section class="hobbies-section">
+        <div class="hobbies-header">
+            <h1>我的习惯与爱好</h1>
+        </div>
+        
+        <div class="hobbies-container">
+            <div class="hobby-category">
+                <div class="category-header">
+                    <i class="fas fa-calendar-check"></i>
+                    <h3 class="category-title">日常习惯</h3>
+                </div>
+                <ul class="hobby-list">
+                    <li class="hobby-item">
+                        <i class="fas fa-sync-alt hobby-icon"></i>
+                        <div class="hobby-content">
+                            <h4>定期复盘</h4>
+                            <p>坚持日、周、月、年复盘，不断总结和改进</p>
+                        </div>
+                    </li>
+                    <li class="hobby-item">
+                        <i class="fas fa-book hobby-icon"></i>
+                        <div class="hobby-content">
+                            <h4>热爱读书</h4>
+                            <p>代表书籍：</p>
+                            <div class="book-list">
+                                <div class="book-item">
+                                    <i class="fas fa-book-reader"></i>
+                                    <div>《小米创业思考》</div>
+                                </div>
+                                <div class="book-item">
+                                    <i class="fas fa-book-reader"></i>
+                                    <div>《三体》</div>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="hobby-category">
+                <div class="category-header">
+                    <i class="fas fa-running"></i>
+                    <h3 class="category-title">运动爱好</h3>
+                </div>
+                <ul class="hobby-list">
+                    <li class="hobby-item">
+                        <i class="fas fa-basketball-ball hobby-icon"></i>
+                        <div class="hobby-content">
+                            <h4>打篮球</h4>
+                            <p>锻炼身体，培养团队精神</p>
+                        </div>
+                    </li>
+                    <li class="hobby-item">
+                        <i class="fas fa-fist-raised hobby-icon"></i>
+                        <div class="hobby-content">
+                            <h4>空击</h4>
+                            <p>提升力量和协调能力</p>
+                        </div>
+                    </li>
+                    <li class="hobby-item">
+                        <i class="fas fa-running hobby-icon"></i>
+                        <div class="hobby-content">
+                            <h4>跑步</h4>
+                            <p>保持体能，培养毅力</p>
+                        </div>
+                    </li>
+                    <li class="hobby-item">
+                        <i class="fas fa-dumbbell hobby-icon"></i>
+                        <div class="hobby-content">
+                            <h4>街健</h4>
+                            <p>增强体质，塑造体型</p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="hobby-category">
+                <div class="category-header">
+                    <i class="fas fa-music"></i>
+                    <h3 class="category-title">音乐爱好</h3>
+                </div>
+                <ul class="hobby-list">
+                    <li class="hobby-item">
+                        <i class="fas fa-guitar hobby-icon"></i>
+                        <div class="hobby-content">
+                            <h4>吉他演奏</h4>
+                            <p>陶冶情操，享受音乐的美好</p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="copyright">
+                © 2025 杨骞玺 | 版权所有
+            </div>
+            <div class="social-links">
+                <a href="#" target="_blank"><i class="fab fa-github"></i></a>
+                <a href="#" target="_blank"><i class="fab fa-bilibili"></i></a>
+                <a href="#" target="_blank"><i class="fas fa-envelope"></i></a>
+            </div>
+        </div>
+        <button id="back-to-top" class="back-to-top">
+            <i class="fas fa-arrow-up"></i>
+        </button>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="js/main.js"></script>
+</body>
+</html> 

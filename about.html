@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>关于我 - 杨骞玺的个人博客</title>
+    <meta name="description" content="了解更多关于杨骞玺的信息">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Poppins:wght@600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .about-section {
+            padding: 120px 2rem 4rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .about-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .about-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: start;
+        }
+
+        .basic-info {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .basic-info h3 {
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            font-family: var(--font-heading);
+        }
+
+        .info-list {
+            list-style: none;
+        }
+
+        .info-list li {
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .info-list i {
+            color: var(--secondary-color);
+            margin-right: 1rem;
+            width: 24px;
+        }
+
+        .personal-statement {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .quote {
+            font-size: 1.5rem;
+            font-style: italic;
+            color: var(--secondary-color);
+            text-align: center;
+            margin: 2rem 0;
+            font-family: var(--font-heading);
+        }
+
+        @media screen and (max-width: 768px) {
+            .about-content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="nav-brand">
+            <a href="index.html">杨骞玺的个人博客</a>
+        </div>
+        <button class="nav-toggle">
+            <i class="fas fa-bars"></i>
+        </button>
+        <ul class="nav-menu">
+            <li><a href="index.html">首页</a></li>
+            <li><a href="about.html" class="active">关于我</a></li>
+            <li><a href="goals.html">我的目标</a></li>
+            <li><a href="skills.html">能力与成就</a></li>
+            <li><a href="tech.html">技术栈</a></li>
+            <li><a href="hobbies.html">爱好与习惯</a></li>
+        </ul>
+    </nav>
+
+    <!-- 关于我部分 -->
+    <section class="about-section">
+        <div class="about-header">
+            <h1>我是谁？</h1>
+        </div>
+        
+        <div class="about-content">
+            <div class="basic-info">
+                <h3>基本信息</h3>
+                <ul class="info-list">
+                    <li>
+                        <i class="fas fa-user"></i>
+                        <span>姓名：杨骞玺</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-calendar"></i>
+                        <span>出生年份：2006年</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-university"></i>
+                        <span>学校：北京理工大学</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-graduation-cap"></i>
+                        <span>专业：自动化</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>籍贯：四川彭州</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="personal-statement">
+                <h3>个性签名</h3>
+                <div class="quote">
+                    "文理兼修的ENTJ | 马斯克、雷军的后辈"
+                </div>
+                <div class="quote">
+                    "有序的锋刃上 豢养着会流泪的星尘"
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="copyright">
+                © 2025 杨骞玺 | 版权所有
+            </div>
+            <div class="social-links">
+                <a href="#" target="_blank"><i class="fab fa-github"></i></a>
+                <a href="#" target="_blank"><i class="fab fa-bilibili"></i></a>
+                <a href="#" target="_blank"><i class="fas fa-envelope"></i></a>
+            </div>
+        </div>
+        <button id="back-to-top" class="back-to-top">
+            <i class="fas fa-arrow-up"></i>
+        </button>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="js/main.js"></script>
+</body>
+</html> 
