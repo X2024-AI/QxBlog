@@ -17,6 +17,12 @@
   --amber:         #EDA304;
   --teal:          #80D8DA;
 
+  /* warm "paper" palette (articles page + abstracts) */
+  --warm-bg:       #FFF8F3;
+  --warm-card:     #FFFDF8;
+  --warm-tint:     #F9F0EA;
+  --warm-line:     #F0E4DC;
+
   --font-sans: "Inter", "Noto Sans SC", system-ui, -apple-system, "Segoe UI",
                Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;

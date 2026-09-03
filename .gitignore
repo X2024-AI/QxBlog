@@ -13,6 +13,9 @@ design_reference_img/
 # Playwright test artifacts
 .playwright-mcp/
 
+# Bug-report images
+bug_image/
+
 # OS / editor
 .DS_Store
 Thumbs.db
