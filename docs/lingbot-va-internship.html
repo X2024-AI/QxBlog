@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Internship — LingBot-VA · Yang Qianxi</title>
+  <meta name="description" content="Internship experience of Yang Qianxi at 北京万仞智慧智能科技有限公司 on LingBot-VA — 2.65× inference speedup, bit-identical, real-robot deployment.">
+  <link rel="icon" type="image/svg+xml" href="../assets/avatar.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="docs.css">
+</head>
+<body>
+
+  <nav class="doc-nav">
+    <div class="doc-nav-inner">
+      <a href="../index.html" class="back"><span class="arrow">←</span> Yang Qianxi</a>
+      <div class="doc-tabs">
+        <a href="articles.html">Articles</a>
+        <a href="research-proposal.html">Proposal</a>
+        <a href="research-independent-thinking.html">Thinking</a>
+        <a href="lingbot-va-internship.html" class="active">Internship</a>
+        <a href="lingbot-va-inference-sop.html">Inference SOP</a>
+        <a href="lingbot-va-deployment.html">Deployment</a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="doc-hero">
+    <div class="doc">
+      <p class="doc-eyebrow">Internship · 北京万仞智慧智能科技有限公司</p>
+      <h1 class="doc-title">LingBot-VA — engineering a real-time video-action robot policy</h1>
+      <p class="doc-sub">I profiled and optimized a world-model robot policy, then deployed and monitored it on a live dual-arm robot — from a 10.3-second action chunk down to 3.9 seconds, <strong>bit-identical</strong>.</p>
+      <div class="doc-meta">
+        <span class="chip">Embodied AI Algorithm Intern · 具身智能算法实习生</span>
+        <span class="chip">2026/08 — present · Remote</span>
+        <span class="chip">Robot: OpenArm (bimanual)</span>
+      </div>
+
+      <div class="kpi-row">
+        <div class="kpi"><div class="num">2.65<span class="unit">×</span></div><div class="lbl">end-to-end inference speedup</div></div>
+        <div class="kpi"><div class="num">10.3→3.9<span class="unit">s</span></div><div class="lbl">per action chunk</div></div>
+        <div class="kpi"><div class="num">bit-identical</div><div class="lbl">output vs baseline (4,680 attn calls)</div></div>
+        <div class="kpi"><div class="num">2/2</div><div class="lbl">RoboTwin eval success (smoke)</div></div>
+      </div>
+    </div>
+  </header>
+
+  <main class="doc">
+
+    <div class="abstract">
+      <p class="abstract-title">Why this matters for a research lab</p>
+      <p>This wasn't "made a model run faster." It was: profile a diffusion policy and prove it's <strong>CPU-launch-bound, not GPU-bound</strong>; reject the four standard accelerators with measurements instead of guesses; ship a fix whose output is <strong>provably bit-identical</strong> across 4,680 attention calls; and then make the result <strong>observable</strong> with a real-time panel. That's the loop a graduate student or research engineer runs every day.</p>
+    </div>
+
+    <h2><span class="sect-num">01</span>Context</h2>
+    <p>北京万仞智慧智能科技有限公司 builds an embodied-AI stack around the <strong>OpenArm</strong> dual-arm robot. <strong>LingBot-VA</strong> is the lab's video-action policy: it conditions on multi-camera observations and predicts action chunks autoregressively, served over websocket. My work sat where the model meets the real system — making it fast enough to control a robot in real time, and reliable enough to deploy, evaluate, and monitor on a shared 8×A100 cluster.</p>
+    <p><strong>Inherited:</strong> a working but ~79×-too-slow model, an eval harness full of placeholders, and no observability/ops tooling around the server.</p>
+
+    <h2><span class="sect-num">02</span>The headline: 2.65× faster, bit-identical</h2>
+    <p>The model ran at <strong>10,278 ms</strong> per action chunk against a <strong>130 ms</strong> streaming budget. I was asked to try FP8 / TensorRT-LLM / FlashInfer — but profiled first, and the profile changed the whole plan: <strong>GPU utilization was 23.4%</strong>. The server was <em>launch-bound</em>, not compute-bound.</p>
+
+    <table>
+      <tr><th>Phase</th><th>Before</th><th>After</th><th>Speedup</th></tr>
+      <tr><td><code>infer</code> (one chunk: 25 video + 50 action steps)</td><td>10,278 ms</td><td><strong>3,878 ms</strong></td><td><strong>2.65×</strong></td></tr>
+      <tr><td><code>compute_kv_cache</code></td><td>1,127 ms</td><td><strong>872 ms</strong></td><td>1.29×</td></tr>
+    </table>
+
+    <p>The three fixes: a sync-free <strong>ring-buffer KV cache</strong> (replacing a slot pool that called <code>torch.nonzero</code> per layer per step — ~6.5 s of CPU stall), <strong>skipping FSDP at world_size=1</strong> (~4.3 s/chunk of hidden allgather churn), and hot-path cleanup. The four "obvious" accelerators were all wrong for this workload — <strong>FP8</strong> (no sm80 tensor cores), <strong>TensorRT-LLM</strong> (wrong model class), <strong>paged-KV</strong> (the ring buffer already solved it), <strong>FlashInfer</strong> (attention was only 7.5% of GPU time).</p>
+
+    <h2><span class="sect-num">03</span>Verification — why "fast" isn't enough</h2>
+    <p>I proved the speedup is <strong>numerically lossless</strong>, not just faster: outputs are bit-identical to baseline across all <strong>4,680 attention calls</strong> of a full control sequence, via digest-stream diffing and a 6-case equivalence suite. That surfaced a subtle bug in my own first implementation (a transient-path key rebind silently zeroing the KV pool — missed by unit tests, caught by the diff) and two latent bugs in the <em>legacy</em> pool. A result you can trust, not just a faster number.</p>
+
+    <h2><span class="sect-num">04</span>Making it observable — a real-time monitoring panel</h2>
+    <p>Built a web panel (<code>script/inference_panel.html</code>, probes at 0.0003% overhead) showing per-phase latency, trend vs the 130 ms budget, and a <strong>phase-share advisory</strong> (optimize / later / skip, with reasons). It immediately caught a real regression: a neighbor job (~200 CPU processes) inflating every phase 3.8 s → 8–9 s — the launch-bound signature, invisible to a bare latency number.</p>
+
+    <h2><span class="sect-num">05</span>Full scope of work</h2>
+    <table>
+      <tr><th>Workstream</th><th>What I did</th><th>Result</th></tr>
+      <tr><td><strong>Inference optimization</strong></td><td>Profiled (Nsight + torch.profiler), fixed KV-cache + FSDP + hot-path</td><td>10.3 s → 3.9 s, bit-identical</td></tr>
+      <tr><td><strong>Monitoring panel</strong></td><td>Timing probes + HTTP metrics + web dashboard, multi-server</td><td>Live observability; caught a regression</td></tr>
+      <tr><td><strong>RoboTwin-2.0 eval</strong></td><td>Stood up eval stack (checkpoint, paths, configs, env fixes)</td><td><code>adjust_bottle</code> 2/2 (100%)</td></tr>
+      <tr><td><strong>Real-robot serving</strong></td><td>Deployed + kept grasp_bottle server alive</td><td>Stable tmux serve, ~1.6–3.5 s/chunk</td></tr>
+      <tr><td><strong>Data tooling</strong></td><td>Inspection tool + ground-truth replay harness</td><td>200 eps audited; client verified</td></tr>
+      <tr><td><strong>Model comparison</strong></td><td>Built EEF dataset + train config for openpi pi0.5</td><td>Dataset validated, config ready</td></tr>
+    </table>
+
+    <h2><span class="sect-num">06</span>Skills demonstrated</h2>
+    <p><strong>Performance engineering</strong> (profiling-driven optimization, CPU/launch-bound diagnosis, KV-cache design, bit-exact verification) · <strong>robot learning</strong> (video-action / world-model policies, diffusion action generation, VAE latent spaces, RoboTwin / MuJoCo, imitation learning) · <strong>ML infra</strong> (serving deployment, tmux/process mgmt on shared GPUs, websocket+msgpack, monitoring) · <strong>data engineering</strong> (LeRobot v2.1, EEF action-space conversion) · <strong>stack:</strong> PyTorch, FSDP/torch.distributed, CUDA, Linux, Git.</p>
+
+    <h2><span class="sect-num">07</span>What I took away</h2>
+    <p><strong>Profile before optimizing.</strong> The four "obvious" accelerators were all wrong; the real win was a <code>nonzero</code> call and an accidental FSDP wrap — things only a profile reveals. And on the ops side: a serving process is only as reliable as the process-tree topology you launch it under.</p>
+
+    <div class="doc-footer">
+      <p>Two related write-ups:</p>
+      <div class="next-docs">
+        <a href="lingbot-va-inference-sop.html">Inference-speedup SOP (every factor, step by step) →</a>
+        <a href="lingbot-va-deployment.html">Deployment &amp; ops guide →</a>
+      </div>
+    </div>
+  </main>
+
+</body>
+</html>

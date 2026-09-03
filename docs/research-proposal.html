@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>科研 Proposal — 时序意图驱动的双层视觉-语言操纵框架 · 杨骞玺</title>
+  <meta name="description" content="研究计划：时序意图驱动的双层视觉-语言操纵框架——面向长时序任务的闭环鲁棒执行。杨骞玺的科研提案。">
+  <link rel="icon" type="image/svg+xml" href="../assets/avatar.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="docs.css">
+</head>
+<body>
+
+  <nav class="doc-nav">
+    <div class="doc-nav-inner">
+      <a href="../index.html" class="back"><span class="arrow">←</span> Yang Qianxi</a>
+      <div class="doc-tabs">
+        <a href="articles.html">Articles</a>
+        <a href="research-proposal.html" class="active">Proposal</a>
+        <a href="research-independent-thinking.html">Thinking</a>
+        <a href="lingbot-va-internship.html">Internship</a>
+        <a href="lingbot-va-inference-sop.html">Inference SOP</a>
+        <a href="lingbot-va-deployment.html">Deployment</a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="doc-hero">
+    <div class="doc">
+      <p class="doc-eyebrow">Research Proposal · 科研 Proposal</p>
+      <h1 class="doc-title">科研Proposal：时序意图驱动的双层视觉-语言操纵框架</h1>
+      <p class="doc-sub">——面向长时序任务的闭环鲁棒执行</p>
+      <div class="doc-meta">
+        <span class="chip">Vision-Language-Action</span>
+        <span class="chip">Hierarchical RL</span>
+        <span class="chip">Closed-loop manipulation</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="doc">
+
+    <div class="abstract">
+      <p class="abstract-title">In brief (English summary)</p>
+      <p>A <strong>temporal-intent-driven dual-layer VLA framework</strong> for long-horizon manipulation: a high-level planner and a low-level executor joined by a unified semantic intent vector, where task-state assessment and re-planning are <em>internalized</em> into the high-level temporal modeling — no separate failure-detection module. Targets task-level semantic closed-loop execution, skill recombination, and zero-shot generalization.</p>
+    </div>
+
+    <h2>摘要</h2>
+    <p>针对当前视觉-语言-动作模型（Vision-Language-Action, VLA）在长时序操纵任务中<strong>开环执行、异常无法自适应恢复</strong>的核心痛点，本研究提出一种<strong>双层时序意图驱动架构</strong>：仅保留高层规划器与低层执行器两个模块，以统一的高维语义意图向量作为分层接口，将任务状态评估、异常感知与重规划完全内化于高层时序建模过程，无需独立监督模块。低层通过意图引导的视觉注意力机制实现精确运动生成，结合自监督本体模型输出底层控制指令。</p>
+    <p>本研究旨在突破现有“动作分解式”分层的本质局限，实现<strong>任务级语义闭环</strong>，同时具备技能重组与零样本泛化能力。研究方案基于现有成熟技术栈可落地，6个月内可完成核心验证并形成论文成果，长期可延伸至多模态通用具身智能方向。</p>
+
+    <h2>一、研究背景与问题提出</h2>
+
+    <h3>1.1 领域背景</h3>
+    <p>随着大规模示教数据与基础模型的发展，VLA已成为通用机器人操纵的核心范式，能够零样本执行开放词汇的操纵指令。但当前主流VLA本质是<strong>“视觉→动作”的端到端开环映射</strong>，模型只学习轨迹模式，不理解任务目标本身，在真实部署中存在致命缺陷：长时序任务中微小的轨迹偏差、物体意外位移或外部干扰会逐步累积，最终导致任务失败，且模型不具备自主修正能力。</p>
+    <p>为应对长时序问题，π0.5、RDP等工作提出快慢双层策略，将长任务拆解为动作片段（action chunk）分步执行。但其本质仍是<strong>轨迹级的压缩与分解</strong>，高层仅在任务初始时刻输出动作片段，执行过程中不持续感知环境、不判断任务所处阶段——例如抓取杯子时若杯子掉落，模型仍会机械执行完预设的空抓动作序列，无法自主触发重抓取。</p>
+
+    <h3>1.2 核心科学问题</h3>
+    <p>如何在双层架构下，以<strong>语义目标</strong>为核心接口，将任务状态判断与重规划内化于规划过程，实现长时序操纵任务的语义级闭环执行，同时保证训练稳定性与泛化性？</p>
+
+    <h2>二、相关研究与核心局限</h2>
+
+    <h3>2.1 双层VLA：动作级分解而非目标驱动</h3>
+    <p>现有快慢分层架构的高层输出为压缩的动作片段潜向量，本质是轨迹序列的编码，一次性输出后低层按序执行，是典型的开环模式。高层仅接收初始感知输入，执行过程中不持续观测环境，无法感知异常状态，也无法动态调整规划。分层仅作为“动作压缩工具”，而非“语义级任务调度手段”。</p>
+
+    <h3>2.2 目标条件策略：缺乏时序调度能力</h3>
+    <p>目标条件强化学习（Goal-Conditioned RL）已广泛应用于单步操纵任务，能够根据目标状态生成对应动作。但现有工作大多聚焦单层策略，缺乏长时序任务下的<strong>子目标调度与序列决策能力</strong>，无法自动拆解复杂任务为多级子目标逐步执行。</p>
+
+    <h3>2.3 任务失败处理：外挂式检测而非内化式规划</h3>
+    <p>现有处理任务异常的方案多采用<strong>独立的失败检测模块</strong>，通过额外分类器判断任务状态并触发重规划。这种模式下检测与规划相互独立，语义标准不一致，响应延迟高，且增加了系统复杂度，不符合“如无必要勿增实体”的设计原则。</p>
+
+    <h2>三、研究设想与技术方案</h2>
+
+    <h3>3.1 核心思路</h3>
+    <p>提出<strong>时序意图驱动的双层操纵框架</strong>，仅包含高层规划器与低层执行器两个模块：</p>
+    <ul>
+      <li>分层接口：统一的<strong>语义意图向量</strong>（CLIP对齐的嵌入空间），仅表征“做什么”的语义目标，不包含“怎么做”的动作细节；</li>
+      <li>核心创新：将任务状态评估、异常感知与重规划完全内化于高层时序Transformer的推理过程，无需独立监督器；高层通过连续视觉序列自主判断任务进度，异常发生时自动输出新的意图向量，实现语义级闭环。</li>
+    </ul>
+
+    <h3>3.2 模块一：高层时序意图规划器</h3>
+    <h4>功能定位</h4>
+    <p>对应“大脑”的规划功能：持续观测环境，理解任务进度，动态输出语义级子目标。</p>
+    <h4>输入输出</h4>
+    <ul>
+      <li>输入：全局语言任务指令、滑动窗口内的视觉序列、本体状态序列；</li>
+      <li>输出：当前子任务的语义意图向量（每10~20步更新一次，非一次性输出）。</li>
+    </ul>
+    <h4>核心设计</h4>
+    <ol>
+      <li><strong>多模态编码</strong>：冻结的CLIP文本编码器编码全局指令得到语义嵌入；轻量视觉编码器（DINOv2-small）逐帧编码图像得到帧级特征序列。</li>
+      <li><strong>时序Transformer建模</strong>：以指令嵌入为全局条件，通过交叉注意力融合视觉时序特征，建模任务的动态进程。
+        <ul>
+          <li>训练数据包含正常执行、异常干扰、重执行等多种序列，模型天然学习不同任务阶段与异常状态的特征模式；</li>
+          <li>推理时无需额外分类器，视觉时序的变化会自动激活Transformer对应的隐藏状态，直接输出匹配当前状态的意图向量。</li>
+        </ul>
+      </li>
+      <li><strong>意图输出层</strong>：将当前时刻隐藏状态投影为CLIP空间的意图向量，保证语义一致性与零样本泛化性。</li>
+    </ol>
+
+    <h3>3.3 模块二：低层意图引导运动执行器</h3>
+    <h4>功能定位</h4>
+    <p>对应“小脑”的执行功能：将语义意图落地为精确的物理运动，输出关节控制指令。</p>
+    <h4>核心设计</h4>
+    <ol>
+      <li><strong>意图引导视觉显著图</strong>：用高层输出的意图向量作为query，对视觉多尺度特征图做交叉注意力，自动聚焦操作物体与关键几何区域（如杯柄、瓶盖边缘），输出加权的视觉特征。既实现了语义到视觉的接地，也提供了可解释的注意力可视化。</li>
+      <li><strong>目标位姿生成</strong>：基于扩散策略（Diffusion Policy）架构，融合意图加权的视觉特征与本体状态，输出末端执行器的目标位姿短轨迹。低层只负责“到达目标状态”，不理解任务语义，保证控制精度与速度。</li>
+      <li><strong>自监督本体运动模型</strong>：通过机器人自监督随机运动采集百万级无标注数据（关节角度、动作指令、末端位姿），训练逆动力学模型，将目标位姿快速转换为关节控制指令，对应“婴儿式探索身体”的过程，实现毫秒级的位姿-指令映射。</li>
+    </ol>
+
+    <h3>3.4 训练策略：高低层完全解耦</h3>
+    <p>借鉴HIRO与HierKick的解耦训练思想，彻底避免分层强化学习联合训练的不稳定问题：</p>
+    <ol>
+      <li><strong>第一步：训练低层执行器</strong>：基于大规模目标条件示教数据单独训练低层策略与本体模型，保证低层对任意语义目标都能稳定执行。训练完成后<strong>永久冻结参数</strong>。</li>
+      <li><strong>第二步：训练高层规划器</strong>：基于长时序任务序列数据，以子目标意图为监督进行行为克隆预训练；可进一步以最终任务成功率为奖励，用PPO微调意图切换的时机。
+        <ul><li>由于低层固定，高层的MDP环境平稳，可复用大量off-policy数据，样本效率远高于端到端联合训练。</li></ul>
+      </li>
+    </ol>
+
+    <h3>3.5 典型闭环流程（杯子掉落场景）</h3>
+    <ol>
+      <li>任务初始化：输入“抓取桌上的杯子放到托盘上”，高层根据初始视觉输出“抓取桌面上杯子”的意图向量；</li>
+      <li>正常执行：低层接收意图，引导视觉注意力聚焦杯子，输出抓取位姿，本体模型转换为关节指令执行；</li>
+      <li>异常发生：移动中杯子意外掉落，视觉序列偏离正常执行模式；</li>
+      <li>自动重规划：高层时序Transformer捕捉到视觉特征的异常偏移，隐藏状态自动切换，输出“抓取地面上的杯子”的新意图向量，全程无需额外触发信号；</li>
+      <li>重执行：低层接收新意图，重新定位物体并执行抓取，直至完成完整任务。</li>
+    </ol>
+
+    <h2>参考文献（示例）</h2>
+    <ol>
+      <li>Brohan A, et al. RT-2: Vision-Language-Action Models Transfer Web Knowledge to Robotic Control. CoRL, 2023.</li>
+      <li>Zhang B, et al. π0.5: A Vision-Language-Action Foundation Model for Robot Manipulation. arXiv preprint, 2024.</li>
+      <li>Xu C, et al. Diffusion Policy: Visuomotor Policy Learning via Action Diffusion. RSS, 2023.</li>
+      <li>Nachum O, et al. Data-Efficient Hierarchical Reinforcement Learning. NeurIPS, 2018.</li>
+      <li>Sutton R S, et al. Between MDPs and Semi-MDPs: A Framework for Temporal Abstraction in Reinforcement Learning. Artificial Intelligence, 1999.</li>
+    </ol>
+
+    <blockquote>
+      <p>以上是我初步的研究设想，尚有诸多不成熟之处，非常期待能有机会与您深入交流，在您的指导下完善并推进这项研究。</p>
+    </blockquote>
+
+    <div class="doc-footer">
+      <p>Related:</p>
+      <div class="next-docs">
+        <a href="research-independent-thinking.html">独立研究思考（科研独立思考）→</a>
+        <a href="lingbot-va-internship.html">Internship summary →</a>
+      </div>
+    </div>
+  </main>
+
+</body>
+</html>

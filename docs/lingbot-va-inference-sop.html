@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inference-Speedup SOP — LingBot-VA · Yang Qianxi</title>
+  <meta name="description" content="Step-by-step SOP for optimizing LingBot-VA inference — every factor from profiling to bit-identical verification.">
+  <link rel="icon" type="image/svg+xml" href="../assets/avatar.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="docs.css">
+</head>
+<body>
+
+  <nav class="doc-nav">
+    <div class="doc-nav-inner">
+      <a href="../index.html" class="back"><span class="arrow">←</span> Yang Qianxi</a>
+      <div class="doc-tabs">
+        <a href="articles.html">Articles</a>
+        <a href="research-proposal.html">Proposal</a>
+        <a href="research-independent-thinking.html">Thinking</a>
+        <a href="lingbot-va-internship.html">Internship</a>
+        <a href="lingbot-va-inference-sop.html" class="active">Inference SOP</a>
+        <a href="lingbot-va-deployment.html">Deployment</a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="doc-hero">
+    <div class="doc">
+      <p class="doc-eyebrow">Methodology · Write-up</p>
+      <h1 class="doc-title">Inference-speedup SOP</h1>
+      <p class="doc-sub">Every factor from the LingBot-VA optimization, in the order of the procedure. One method: <strong>profile first, optimize second.</strong></p>
+      <div class="kpi-row">
+        <div class="kpi"><div class="num">2.65<span class="unit">×</span></div><div class="lbl">infer speedup (10,278 → 3,878 ms)</div></div>
+        <div class="kpi"><div class="num">23.4<span class="unit">%</span></div><div class="lbl">GPU util → launch-bound, not GPU-bound</div></div>
+        <div class="kpi"><div class="num">4,680</div><div class="lbl">attention calls verified bit-identical</div></div>
+        <div class="kpi"><div class="num">4<span class="unit">✗</span></div><div class="lbl">standard accelerators rejected by measurement</div></div>
+      </div>
+    </div>
+  </header>
+
+  <main class="doc">
+
+    <div class="abstract">
+      <p class="abstract-title">The one-line takeaway</p>
+      <p>FP8 / TensorRT-LLM / FlashInfer were all wrong for this workload; the wins came from a <code>nonzero</code> sync, an accidental FSDP wrap, and hot-path <code>empty_cache</code> — things only a profile reveals. And "fast" isn't enough: <strong>bit-identical verification</strong> is what turns a speedup into a shippable result.</p>
+    </div>
+
+    <h2><span class="sect-num">0</span>Hardware &amp; environment reality check</h2>
+    <table>
+      <tr><th>Factor</th><th>Finding</th><th>Consequence</th></tr>
+      <tr><td>GPU micro-arch</td><td>A100-SXM4-80GB = sm80 (Ampere)</td><td><strong>No FP8 tensor cores</strong> (need Hopper sm90 / Ada sm89)</td></tr>
+      <tr><td>Installed kernels</td><td>No TensorRT-LLM / FlashInfer / flash-attn / TE</td><td>Only torch 2.9.0 + SDPA</td></tr>
+      <tr><td>FlashAttention</td><td>SDPA already dispatches to flash kernels</td><td>"Enable FlashAttention" was already true</td></tr>
+      <tr><td>Host</td><td>Shared 8-GPU box, other users' jobs</td><td>Benchmarks only valid when CPU load is quiet</td></tr>
+    </table>
+
+    <h2><span class="sect-num">1</span>Establish a real baseline</h2>
+    <ul>
+      <li>Streaming budget: <strong>130 ms</strong> per robot tick.</li>
+      <li>One <code>infer</code> chunk = 25 video + 50 action denoise steps.</li>
+      <li>Baseline <code>infer</code> <strong>10,278 ms</strong> (~79× over); <code>compute_kv_cache</code> 1,127 ms.</li>
+      <li>Methodology trap: a repeat-<code>infer</code> loop violates the streaming-VAE state machine — mirror <code>reset → infer → compute_kv_cache → …</code>.</li>
+    </ul>
+
+    <h2><span class="sect-num">2</span>Profile to find where time goes</h2>
+    <p>Decisive metric: <strong>GPU util 23.4%</strong> → CPU/launch-bound. Five hot spots:</p>
+    <ol>
+      <li><strong>KV-slot pool syncs</strong> — <code>torch.nonzero</code>/<code>any</code> 2–3× per layer per step, ~1.4 ms CPU stall each → ~86 ms/step × 75 ≈ <strong>6.5 s</strong>.</li>
+      <li><strong>Cache gather/scatter</strong> — ~1.2 s GPU + ~3.6 s CPU.</li>
+      <li><strong>fp64 RoPE + fp32 norms</strong> — ~30% of kernels are casts/norms.</li>
+      <li><strong>Hot-path waste</strong> — <code>empty_cache()</code> ×5, per-step clones, grid-id rebuild, 32k H2D.</li>
+      <li><strong>FSDP at world_size=1</strong> (found during benchmarking) — ~4.3 s/chunk of allgather churn.</li>
+    </ol>
+
+    <h2><span class="sect-num">3</span>Rank proposals against measurements</h2>
+    <table>
+      <tr><th>Proposal</th><th>Verdict</th><th>Why</th></tr>
+      <tr><td>FP8</td><td><span class="vb no">✗</span></td><td>No sm80 tensor cores; launch-bound, so bit-width isn't the constraint</td></tr>
+      <tr><td>TensorRT-LLM</td><td><span class="vb no">✗</span></td><td>Targets AR decoders; this is a dual-stream video+action diffusion transformer</td></tr>
+      <tr><td>Paged KV (TileRT)</td><td><span class="vb mid">△</span></td><td>Right problem, wrong fix — a ring buffer kills the syncs with no new dependency</td></tr>
+      <tr><td>FlashInfer</td><td><span class="vb mid">△</span></td><td>Attention is only ~7.5% of GPU time; revisit later</td></tr>
+    </table>
+
+    <h2><span class="sect-num">4</span>Implement in ranked order</h2>
+    <ol>
+      <li><strong>RingKVPool</strong> — contiguous ring buffer, host-side pointers, zero syncs → 10,278 → 7,342 ms (1.40×).</li>
+      <li><strong>Skip FSDP at world_size==1</strong> — the biggest single win (~4.3 s/chunk).</li>
+      <li><strong>Hot-path cleanup</strong> — remove <code>empty_cache</code>, per-episode <code>cfg_text_emb</code> (150 clones/chunk), grid-id cache, log spam.</li>
+      <li><strong>RoPE kept fp64</strong> — fp32 diverged the trajectory (corr 0.96 by chunk 2).</li>
+    </ol>
+
+    <h2><span class="sect-num">5</span>Verify bit-identical</h2>
+    <ul>
+      <li>Digest-stream diff across <strong>4,680 attention calls</strong>; 6-case equivalence suite.</li>
+      <li><strong>My bug:</strong> transient <code>key</code> rebound before <code>drop_last</code> — silently zeroed the pool each step; unit tests missed it.</li>
+      <li><strong>Legacy bug:</strong> transient slots freed by ascending id — frees a real entry, keeps stale garbage.</li>
+      <li><strong>Chaos amplification:</strong> tiny FP reorder compounds through 75 flow-match ODE steps.</li>
+      <li><strong>FSDP class rename</strong> (<code>FSDPWanAttention</code>) — post-wrap monkeypatches silently no-op.</li>
+    </ul>
+
+    <h2><span class="sect-num">6</span>Benchmark honestly</h2>
+    <p>Factors that skewed numbers: GPU squatters, two servers on one port, <code>save_async</code> pool writes, a forgotten <code>CUDA_VISIBLE_DEVICES</code>, and the in-process vs websocket-E2E gap (3.66 s vs 8 s) resolved by finding the FSDP path.</p>
+
+    <h2><span class="sect-num">7</span>Make it observable</h2>
+    <ul>
+      <li>Probes (0.0003% overhead) around 5 phases; <code>--metrics-port</code> inside the server process.</li>
+      <li>Panel: KPI row, stacked phases, trend vs 130 ms, phase-share advisory, before/after, multi-server.</li>
+      <li><strong>Launch-bound signature:</strong> a neighbor job inflates <em>all</em> phases proportionally (3.8 → 8–9 s).</li>
+      <li><strong>VAE encode = 85% of every kv-cache tick</strong> — the top remaining lever on the real-robot config.</li>
+    </ul>
+
+    <h2><span class="sect-num">8</span>Remaining levers (ranked)</h2>
+    <table>
+      <tr><th>#</th><th>Lever</th><th>Expected</th><th>Risk / cost</th></tr>
+      <tr><td>1</td><td><code>torch.compile</code> the denoise step</td><td>3.9 → ~2.5 s</td><td>Low</td></tr>
+      <tr><td>2</td><td>CUDA-graph the 77 fixed-shape forwards</td><td>+20–30%</td><td>Medium</td></tr>
+      <tr><td>3</td><td>Action steps 50 → 25</td><td>−1.27 s</td><td>Needs success-rate eval</td></tr>
+      <tr><td>4</td><td>VAE encode optimization</td><td>0.87 → ~0.5 s</td><td><code>channels_last_3d</code> + batch</td></tr>
+      <tr><td>5</td><td>Drop CFG on video loop</td><td>−0.6 s</td><td>Needs eval</td></tr>
+      <tr><td>6</td><td>Distillation / few-step flow matching</td><td>2–4×</td><td>Only path &lt;130 ms; training-time</td></tr>
+      <tr><td>7</td><td>Multi-GPU (pipeline parallel)</td><td>~linear</td><td>FSDP was harmful at ws=1</td></tr>
+    </table>
+
+    <div class="doc-footer">
+      <p>Related:</p>
+      <div class="next-docs">
+        <a href="lingbot-va-internship.html">← Internship summary (the results in context)</a>
+        <a href="lingbot-va-deployment.html">Deployment &amp; ops guide →</a>
+      </div>
+    </div>
+  </main>
+
+</body>
+</html>

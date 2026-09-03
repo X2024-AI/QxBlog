@@ -1,0 +1,18 @@
+# Claude Code session transcripts (sensitive, large — do not publish)
+-data-qx-workspace-lingbot-va/
+
+# Original Feishu screen recordings (pi05_deployment.mp4 is the converted copy)
+vedios/*.qt
+
+# Source resume PDF (assets/cv.pdf is the served copy)
+resume_file/
+
+# Design reference images (not part of the site)
+design_reference_img/
+
+# Playwright test artifacts
+.playwright-mcp/
+
+# OS / editor
+.DS_Store
+Thumbs.db

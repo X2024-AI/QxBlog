@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="Yang Qianxi">
+  <defs>
+    <linearGradient id="avatarGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#8FB1F4"/>
+      <stop offset="1" stop-color="#6795ED"/>
+    </linearGradient>
+  </defs>
+  <circle cx="100" cy="100" r="100" fill="url(#avatarGrad)"/>
+  <circle cx="100" cy="100" r="100" fill="none" stroke="#FFFFFF" stroke-opacity="0.25" stroke-width="2"/>
+  <text x="100" y="128" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="72" font-weight="700" fill="#FFFFFF" text-anchor="middle" letter-spacing="2">YQ</text>
+</svg>

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deployment & Ops Guide — LingBot-VA · Yang Qianxi</title>
+  <meta name="description" content="How-to for serving, evaluating, and monitoring the LingBot-VA robot model — real-robot grasp_bottle, RoboTwin eval, MuJoCo harness, panel.">
+  <link rel="icon" type="image/svg+xml" href="../assets/avatar.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="docs.css">
+</head>
+<body>
+
+  <nav class="doc-nav">
+    <div class="doc-nav-inner">
+      <a href="../index.html" class="back"><span class="arrow">←</span> Yang Qianxi</a>
+      <div class="doc-tabs">
+        <a href="articles.html">Articles</a>
+        <a href="research-proposal.html">Proposal</a>
+        <a href="research-independent-thinking.html">Thinking</a>
+        <a href="lingbot-va-internship.html">Internship</a>
+        <a href="lingbot-va-inference-sop.html">Inference SOP</a>
+        <a href="lingbot-va-deployment.html" class="active">Deployment</a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="doc-hero">
+    <div class="doc">
+      <p class="doc-eyebrow">Ops · Reference</p>
+      <h1 class="doc-title">LingBot-VA — Deployment &amp; Operations</h1>
+      <p class="doc-sub">How to serve, evaluate, and monitor the model — the exact commands and gotchas, so anyone (including future me) can reproduce it.</p>
+      <div class="doc-meta">
+        <span class="chip">8×A100 · sm80</span>
+        <span class="chip">websocket + msgpack</span>
+        <span class="chip">tmux-managed serving</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="doc">
+
+    <h2><span class="sect-num">1</span>What LingBot-VA is</h2>
+    <p>A <strong>video-action robot policy</strong> on the Wan2.1 video-diffusion stack (Wan 3D transformer over a VAE latent space, conditioned by a T5 text encoder). Served server–client over websocket + msgpack. All components derive from one config field <code>wan22_pretrained_model_name_or_path</code> (a dir holding <code>transformer/</code>, <code>vae/</code>, <code>tokenizer/</code>, <code>text_encoder/</code>).</p>
+
+    <h2><span class="sect-num">2</span>Hardware &amp; environments</h2>
+    <ul>
+      <li>Host: 8× A100-80GB (sm80 — <strong>no FP8</strong>), shared with other users' jobs. <strong>Always <code>nvidia-smi</code> first.</strong></li>
+      <li>Model env <code>/data/envs/lingbot-va</code> (torch 2.9.0+cu126, no flash-attn, SDPA).</li>
+      <li>Sim env conda <code>robotwin</code>; openpi env <code>/data/qx_workspace/openpi</code> (MuJoCo, <code>MUJOCO_GL=egl</code>).</li>
+    </ul>
+
+    <h2><span class="sect-num">3</span>Serving a checkpoint (real robot)</h2>
+    <p><strong>Deploy dir</strong> <code>pretrained/grasp_bottle_serve/</code>: symlink <code>vae/tokenizer/text_encoder</code> to <code>pretrained/lingbot-va-base</code>, transformer to the checkpoint, and patch <code>config.json</code> <code>attn_mode</code> <code>flex → torch</code> (the only diff vs the raw ckpt).</p>
+    <p><strong>Config</strong> <code>va_grasp_bottle_serve_cfg.py</code>: <code>num_inference_steps=8</code>, <code>action_num_inference_steps=20</code>, <code>attn_window=36</code>, RTC on. Registered as <code>grasp_bottle_serve</code>.</p>
+    <p><strong>Launch in tmux</strong> (never from a tool call — <code>nohup</code>/<code>setsid</code> procs get reaped when the launching process group is cleaned):</p>
+    <pre>tmux new-session -d -s lingbot_grasp -c /data/qx_workspace/lingbot-va \
+  'CUDA_VISIBLE_DEVICES=0 TOKENIZERS_PARALLELISM=false \
+   PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" \
+   /data/envs/lingbot-va/bin/python -m torch.distributed.run --nproc_per_node 1 \
+   --master_port 29062 wan_va/wan_va_server.py \
+   --config-name grasp_bottle_serve --port 29537 --metrics-port 29538 \
+   2>&1 | tee -a /tmp/lingbot_va_server_grasp.log'</pre>
+
+    <h3>Port map</h3>
+    <table>
+      <tr><th>Port</th><th>Owner</th></tr>
+      <tr><td>29536</td><td>paper_cup_relay_serve eval (another session — don't kill)</td></tr>
+      <tr><td>29537</td><td>grasp_bottle websocket</td></tr>
+      <tr><td>29538</td><td>grasp_bottle metrics (must differ from websocket port)</td></tr>
+      <tr><td>29062</td><td>torchrun master port</td></tr>
+    </table>
+
+    <h3>Smoke-test protocol</h3>
+    <ol>
+      <li><code>infer(dict(reset=True, prompt=...))</code> first (initializes <code>frame_st_id</code>).</li>
+      <li>First chunk: obs as a <strong>single dict</strong> (cold-cache VAE temporal conv crashes on a list).</li>
+      <li><code>infer(dict(obs=[8 keyframe dicts], compute_kv_cache=True, state=prev_action))</code>.</li>
+      <li>Step chunks with single-dict obs. Keys: <code>observation.images.head</code> (256×512) + wrists (256×256) + <code>state</code> (30,).</li>
+    </ol>
+
+    <h2><span class="sect-num">4</span>RoboTwin-2.0 eval</h2>
+    <pre>bash evaluation/robotwin/launch_server.sh
+task_name="adjust_bottle"; save_root="results/"
+bash evaluation/robotwin/launch_client.sh ${save_root} ${task_name}</pre>
+    <ul>
+      <li><strong><code>enable_offload=False</code></strong> — with True, one episode &gt;1 h on 80 GB cards.</li>
+      <li>Client connects to <strong>127.0.0.1</strong>, not <code>0.0.0.0</code> (proxy handshake failure).</li>
+      <li><code>curobo</code> pinned v0.7.8; RoboTwin checkout <code>c659e0d</code> uses <code>env_cfg/task_config/</code>.</li>
+      <li>Vulkan/OIDN: pin server + client to the same idle GPU. Result: <code>adjust_bottle</code> 2/2.</li>
+    </ul>
+
+    <h2><span class="sect-num">5</span>MuJoCo ground-truth replay</h2>
+    <p><code>evaluation/openarm_mujoco/replay_gt.py</code> replays recorded expert actions through the unchanged client. Key insight: <code>success=False</code> is often a harness artifact — grasp/release stages are event-driven (<code>try_attach</code>/<code>prepare_release</code>), so replaying joint targets alone never fires them.</p>
+
+    <h2><span class="sect-num">6</span>Monitoring panel</h2>
+    <p><code>script/launch_panel.sh &lt;gpu&gt; &lt;port&gt; &lt;metrics_port&gt;</code>, probes at 0.0003% overhead, JSON at <code>/metrics</code>. Remote access via SSH tunnel:</p>
+    <pre>ssh -f -N -o ServerAliveInterval=30 -L 29599:127.0.0.1:29599 A100</pre>
+
+    <h2><span class="sect-num">7</span>Server-stability post-mortems</h2>
+    <ol>
+      <li><strong>Process-group reaping</strong> — <code>nohup &</code> dies with the call's process group → <code>setsid nohup</code>.</li>
+      <li><strong>setsid still reaped</strong> on session end → <strong>tmux</strong>.</li>
+      <li><strong>tmux died once overnight</strong> + a drift warning (relaunch without <code>--metrics-port</code> → panel reads "offline").</li>
+    </ol>
+    <p><strong>Restart checklist:</strong> tmux session exists AND <code>:29537/healthz</code> 200 AND <code>:29538/metrics</code> alive AND <code>nvidia-smi</code> shows the model on the expected GPU.</p>
+
+    <h2><span class="sect-num">8</span>Host / GitHub quirks</h2>
+    <ul>
+      <li>Proxy: <code>http://127.0.0.1:7890</code> (not <code>[::1]</code>). Push via URL-embedded PAT; <code>http.version=HTTP/1.1</code> + <code>postBuffer=52428800</code>.</li>
+      <li>SSH: <code>ssh.github.com:443</code> through the proxy.</li>
+      <li>Remote repo <code>X2024-AI/lingbot_va_repro</code> built via a graft commit (<code>2824e01</code>).</li>
+    </ul>
+
+    <div class="doc-footer">
+      <p>Related:</p>
+      <div class="next-docs">
+        <a href="lingbot-va-internship.html">← Internship summary</a>
+        <a href="lingbot-va-inference-sop.html">Inference-speedup SOP →</a>
+      </div>
+    </div>
+  </main>
+
+</body>
+</html>

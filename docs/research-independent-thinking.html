@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>科研独立思考 · 杨骞玺</title>
+  <meta name="description" content="杨骞玺的科研独立思考与研究问题清单：反纯行为克隆、大脑-小脑架构、主动感知与在线纠错、持续学习等。">
+  <link rel="icon" type="image/svg+xml" href="../assets/avatar.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="docs.css">
+</head>
+<body>
+
+  <nav class="doc-nav">
+    <div class="doc-nav-inner">
+      <a href="../index.html" class="back"><span class="arrow">←</span> Yang Qianxi</a>
+      <div class="doc-tabs">
+        <a href="articles.html">Articles</a>
+        <a href="research-proposal.html">Proposal</a>
+        <a href="research-independent-thinking.html" class="active">Thinking</a>
+        <a href="lingbot-va-internship.html">Internship</a>
+        <a href="lingbot-va-inference-sop.html">Inference SOP</a>
+        <a href="lingbot-va-deployment.html">Deployment</a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="doc-hero">
+    <div class="doc">
+      <p class="doc-eyebrow">Independent Research Thinking · 科研独立思考</p>
+      <h1 class="doc-title">科研独立思考</h1>
+      <p class="doc-sub">我对机器人学习若干问题的原始思考——关于层级架构、持续学习、主动感知，以及一批尚未被现有工作回答好的问题。</p>
+      <div class="doc-meta">
+        <span class="chip">Anti-BC</span>
+        <span class="chip">Slow-Fast &amp; HRL</span>
+        <span class="chip">Active Perception</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="doc">
+
+    <div class="abstract">
+      <p class="abstract-title">In brief (English summary)</p>
+      <p>Three recurring theses run through my notes: <strong>reject pure behavior-cloning</strong> in favor of learning physical commonsense (friction, center-of-mass, stiffness) rather than memorized trajectories; a <strong>brain–cerebellum hierarchical architecture</strong> where vision does low-frequency intent planning and tactile/proprioception + RL do high-frequency precise execution; and <strong>active perception + online failure recovery</strong> so the robot reacts instead of executing blind.</p>
+    </div>
+
+    <h2>框架设想（2026/8/25）</h2>
+    <p>我设想的框架中，机器人的大脑功能分为<strong>规划部分和执行部分</strong>，<strong>规划部分的输入</strong>是<strong>语言指令</strong>，如果杯子掉了，我们也该继续输出抓取意图，所以除了语言指令还需要<strong>动态的视觉序列观测</strong>，后续可能还有<strong>触觉等其他模态的感知信号</strong>等，同时作为监督器的输入；</p>
+    <p>规划部分与执行部分的接口是规划部分输出<strong>高维的意图向量</strong>，如抓起前面桌上的杯子。</p>
+    <p>然后<strong>执行部分</strong>会分析提取<strong>当前视觉输入的空间</strong>及与任务执行相关（经意图向量指导的显著图）的<strong>视觉输入特征</strong>，再接着<strong>输出本体运动的目标位姿</strong>（像世界模型般预测机器人未来动作）；这一步需要根据<strong>本体的运动特性</strong>（机器人需要像婴儿般玩耍自己的身体，来明白什么样的指令会到达何种位姿状态），输出能交由底层关节电机执行的直接指令。</p>
+    <p>期待实现的效果：转移抓取杯子途中，若杯子意外掉了，高层规划器能理解当前状态、捕捉异常，输出重新抓取的高维语义，再由低层执行器去执行底层学到的抓取策略。</p>
+
+    <h2>长时序失败与恢复（2026/8/17）</h2>
+    <p><strong>长任务执行中一旦出现微小偏差（抓空、物体滑落、外力干扰），就会一路错到底。</strong></p>
+    <p>为什么ACT、pi0.5等算法抓取物体中，中途落了模型依旧执行不work。一个解决方法是针对失败的场景，补充更多的恢复数据，似乎和HIL-SERL用失败数据做强化比较像。另一个思路还是用进任务级别的理解，如何让他理解任务，和监测到任务执行失误后，发出精细的控制指令。这需要对三维空间的操作理解很深。</p>
+    <p>其实训练顶层模型输入观测（但要建模输入很丰富多维的输入信息），输出空间关系的指导信号（怎么建模输出力度、目标位置）就好了，比如左移、右移，然后底层用正逆运动学执行。</p>
+
+    <h2>问题清单（精选）</h2>
+    <p style="color:var(--muted);font-size:.85rem;">以下精选自我原始 24 条问题清单——保留原文字，仅略去部分偏工程性的条目。</p>
+    <ol>
+      <li>解决真机部署中obs与action不匹配的信号传输延迟与推理延迟的问题也不错。以及数采采数据时，相机时间戳与电机传感器时间戳，在训练时如何对齐也是个好问题。——解决方法：RTC+插值。研究点：把模型做到端侧；</li>
+      <li>pi0似乎是以视觉作为大脑，根据末端与目标位置的差，计算运动增量，也即解算逆解。那能不能不靠视觉完成闭环控制抓取？</li>
+      <li>算法现有的跨本体迁移方案似乎也是个问题，这能通过改造算法解决吗？——UMI还可以，或者预测末端位姿的，或者pi05这种多输出维度的。可以测测这些模型的跨本体迁移能力</li>
+      <li>不使用模仿学习，机械臂怎么在简单意图（抓那个杯子）的指导下，按任意限制要求（先比个耶，或某种奇怪的位姿）去抓一个杯子？一个有趣的机器人操作能力测验，“用10种方法抓眼前这个杯子”。机器人学习，和人类学习的区别。人类婴儿一开始学习时，也是无精度的乱动，但是慢慢在reward（如疼痛）函数的指引下，他们先是学会了怎么待着让自己不痛（基础的策略），然后再慢慢学着爬起来（在高处有食物reward）的奖励下。所以比较重要的一点是构建智能体<strong>持续学习</strong>的能力，在原有训练的基础上还能scale无穷的技能！</li>
+      <li>假设持续学习这条路可行的情况下，那就要去挑战机器人完成单个任务的极限水准，用灵巧手完成复杂运动任务似乎可以做做。或者做graspanywhere这类工作。</li>
+      <li>域随机化时不应当盲目随机化，最好采用微量真实数据（如真实相机照片，真实电机响应测试曲线）来自适应随机化，这样能在仿真快速生成更多更真实的数据</li>
+      <li>硬件层面（相机、关节状态传感器）时间戳不匹配造成的不同机器人间的差异，如何用低成本算法解决。</li>
+      <li>如何只给模糊的左右指令，通过视觉画面解算6D位姿控制。</li>
+      <li>给一个目标点，直接自动适应地伸过去。（如果用传统IK和避障路径规划指导模型朝目标点伸过去，肯定更快，也很像人类的本能抓取）</li>
+      <li>intention/language-action model也很有意思，先让机器人熟悉自己的身体，具备由意图控制的运动能力，比如让他平举双臂、做手指操。然后以后通过语言指令驱动他完成任务，或是给他人类动作的示范视频，他也能快速学会模仿人类动作。</li>
+      <li>没有一个文章说清楚，为什么采用快慢分层系统，有什么好处？慢系统输出的到底是啥。</li>
+      <li>小白上学到的物体抓取面识别，放到六代机上，就把桌面识别成抓取盒子了，根本没学到人类级别的物体理解。</li>
+      <li>模型能预测要到的位置，但是缺少触觉反馈，抓东西抓不紧的问题。</li>
+      <li>思考如何跨模态拓展机器人的预训练基模，让其天然适应更多自由度的灵巧手。</li>
+      <li>How should we treat Exposure/white-balance differences problem? How to make model robust to brightness, contrast, and color temperature?</li>
+      <li>lingbot_va 这类模型为什么对光照、曝光度这些不敏感，不需要像之前说的恒定光照？</li>
+    </ol>
+
+    <div class="doc-footer">
+      <p>Related:</p>
+      <div class="next-docs">
+        <a href="research-proposal.html">← 科研 Proposal（研究计划）</a>
+        <a href="lingbot-va-internship.html">Internship summary →</a>
+      </div>
+    </div>
+  </main>
+
+</body>
+</html>
