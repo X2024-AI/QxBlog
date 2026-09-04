@@ -16,6 +16,9 @@ design_reference_img/
 # Bug-report images
 bug_image/
 
+# Application strategy (private — professor info & personal tactics)
+application/
+
 # OS / editor
 .DS_Store
 Thumbs.db
