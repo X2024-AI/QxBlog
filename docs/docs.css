@@ -163,6 +163,39 @@
 .warm-page .article-card { background: var(--warm-card); border-color: var(--warm-line); }
 .warm-page .collection-title { border-color: var(--warm-line); }
 
+/* Reading-note article: blog quotes vs. my thinking */
+.bq {
+  margin: 22px 0; padding: 16px 22px;
+  background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+  position: relative;
+}
+.bq::before {
+  content: "“"; position: absolute; top: -14px; left: 14px;
+  font-family: Georgia, serif; font-size: 2.6rem; line-height: 1;
+  color: var(--accent); background: var(--bg); padding: 0 8px;
+}
+.bq p { color: var(--body); font-size: 1rem; font-style: italic; line-height: 1.75; margin: 0; }
+.bq .bq-src {
+  display: block; margin-top: 10px; font-family: var(--font-mono);
+  font-size: .72rem; font-style: normal; color: var(--muted);
+}
+.think {
+  margin: 18px 0 26px; padding: 18px 22px;
+  background: var(--warm-tint); border: 1px solid var(--warm-line);
+  border-left: 4px solid var(--amber); border-radius: 12px;
+}
+.think-title {
+  font-family: var(--font-mono); font-size: .74rem; letter-spacing: .08em;
+  text-transform: uppercase; color: #B07B00; margin-bottom: 8px;
+}
+.think p { color: var(--body); font-size: 1rem; line-height: 1.75; margin: 8px 0; }
+.think strong { color: var(--ink); }
+.think .math {
+  display: block; font-family: var(--font-mono); font-size: .95rem;
+  background: var(--card); border: 1px solid var(--warm-line); border-radius: 8px;
+  padding: 10px 14px; margin: 10px 0; color: var(--ink);
+}
+
 /* Footer */
 .doc-footer {
   margin: 56px 0 0; padding: 32px 0 48px;

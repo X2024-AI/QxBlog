@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Note of pi0.5 · Reading "Behavioral Cloning Mystery" · 杨骞玺</title>
+  <meta name="description" content="杨骞玺的阅读笔记与延伸思考：Behavioral Cloning Mystery（Seohong 的博客）——关于真机数据、开环控制、历史条件策略与实验设计。">
+  <link rel="icon" type="image/svg+xml" href="../assets/avatar.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="docs.css">
+</head>
+<body>
+
+  <nav class="doc-nav">
+    <div class="doc-nav-inner">
+      <a href="../index.html" class="back"><span class="arrow">←</span> Yang Qianxi</a>
+      <div class="doc-tabs">
+        <a href="articles.html">Articles</a>
+        <a href="research-proposal.html">Proposal</a>
+        <a href="research-independent-thinking.html">Thinking</a>
+        <a href="lingbot-va-internship.html">Internship</a>
+        <a href="lingbot-va-inference-sop.html">Inference SOP</a>
+        <a href="lingbot-va-deployment.html">Deployment</a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="doc-hero">
+    <div class="doc">
+      <p class="doc-eyebrow">Reading Note · 阅读笔记</p>
+      <h1 class="doc-title">The Note of pi0.5 — reading "Behavioral Cloning Mystery"</h1>
+      <p class="doc-sub">Learn how a researcher thinks from the writer's blog: notes and extended thinking on Seohong's post about the mysterious phenomena of behavioral cloning on real robot data.</p>
+      <div class="doc-meta">
+        <span class="chip"><a href="https://seohong.me/blog/behavioral-cloning-mystery/" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;">Source: seohong.me ↗</a></span>
+        <span class="chip">BC · pi0.5 · Real-robot data</span>
+        <span class="chip">2026/09</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="doc">
+
+    <div class="abstract">
+      <p class="abstract-title">In brief</p>
+      <p>Seohong trains many BC and RL policies on real robot data and studies the "mysterious phenomena" that appear there. I read the post to learn <strong>how a researcher thinks</strong> — and argue with it along the way: where research questions come from, why open-loop action chunking beats closed-loop single-step policies, my own hypothesis on why <strong>history-conditioned policies underperform</strong>, and the experiment I designed to test it.</p>
+    </div>
+
+    <h2>01 · Where a research question comes from</h2>
+
+    <div class="bq">
+      <p>My impression so far is: real-world demonstration data is very different from the data in existing simulated RL benchmarks. In particular, I've noticed that there are many mysterious phenomena that appear with real robot data.</p>
+      <span class="bq-src">— Seohong, <em>Behavioral Cloning Mystery</em>. These mysteries really confused him, so he decided to properly study them.</span>
+    </div>
+
+    <div class="think">
+      <p class="think-title">💡 My thinking · 我的思考</p>
+      <p>Research direction comes from the confusion you've not been able to answer — like <strong>why the obs of lingbot_va falls into one side?</strong> "The aim of scientist is to illustrate the world."</p>
+    </div>
+
+    <p>The key property of human demonstrations, the post argues, is that they are very narrowly distributed, highly temporally correlated (non-Markovian), and "smoothly" random.</p>
+
+    <div class="think">
+      <p class="think-title">💡 My thinking · 我的思考</p>
+      <p>Meanwhile, <strong>humans can recover from failure and retry</strong>, rather than recite the action trajectory.</p>
+    </div>
+
+    <h2>02 · Methodology takeaways</h2>
+
+    <div class="bq">
+      <p>A bit surprisingly, I found that many of the mysteries can be reproduced even in this state-based setting, without having to go to VLAs. This means that these phenomena are due to the properties of the data rather than the model architecture.</p>
+    </div>
+
+    <div class="think">
+      <p class="think-title">💡 My thinking · 我的思考</p>
+      <p>Controlling the variables and doing the A/B test is a good way to debug and research.</p>
+    </div>
+
+    <div class="bq">
+      <p>These datasets are sampled from the same distribution, and the results are averaged over 4 random seeds with 4 independently sampled datasets each, so it's not just a random fluke!</p>
+    </div>
+
+    <div class="think">
+      <p class="think-title">💡 My thinking · 我的思考</p>
+      <p>Reproduce and randomly test your research by yourself.</p>
+    </div>
+
+    <h2>03 · Open-loop vs. closed-loop — my disagreement</h2>
+
+    <div class="bq">
+      <p>The second mystery is that open-loop control is essential in behavioral cloning.</p>
+    </div>
+
+    <div class="think">
+      <p class="think-title">💡 My thinking · 我的思考</p>
+      <p>But in my design towards physical AGI, the closed-loop control ability is essential — so a more eclectic and thorough way is: <strong>the policy learned by BC is an underlying skill package, used by an upper planning mechanism.</strong></p>
+      <p>In fact, I don't agree with the definition of closed-loop policy in the blog — that it must be beaten by action-chunk prediction methods on account of the lack of Markovian characteristic for action trajectories. Using math representation, closed-loop control should be:</p>
+      <span class="math">a<sub>t</sub> = π(s<sub>t</sub>) &nbsp;— react to the current state at every step, rather than commit to a pre-generated chunk.</span>
+    </div>
+
+    <h2>04 · Why do history-conditioned policies underperform?</h2>
+
+    <div class="think">
+      <p class="think-title">💡 My thinking · 我的思考</p>
+      <p>As for the history-conditioned policies, especially <span style="font-family:var(--font-mono)">π(a<sub>t:t+24</sub> | s<sub>t−24:t</sub>)</span>, I guess that it contains the history info, thus it has <strong>the ability to recover from failure</strong>. But comparing the condition s<sub>t−24:t</sub> with s<sub>t</sub>: the former absolutely correlates with a much bigger space, thus it may need quite larger parameters or a stronger feature encoder to learn the projection between obs and prediction. Or, as for simple tasks, does it just need one frame of state obs to output the correct action chunk?</p>
+      <p>The loss curve shows the history-conditioned policy can <strong>better fit the dataset</strong>, because history info eliminates some of the possibility space about what should be executed next, on account of the continuity of long trajectories. But then <strong>why is its success rate much lower than the policy without history info?</strong> And as we can see, the variance of the success rate belonging to the history-conditioned open-loop policy is larger.</p>
+      <p><strong>My hypothesis:</strong> the history info compounds the error compared with current-state conditioning, thus it may highly possibly observe an OOD history state.</p>
+      <p><strong>How to design an experiment to test my hypothesis?</strong> I plan to prove that, under the same rollout distribution different from the existing dataset, the flow loss and MSE loss of the history-conditioned policy increase dramatically compared with π(a<sub>t:t+24</sub> | s<sub>t</sub>). The test data can derive from replaying a training trajectory and adding stochastic disturbance to the intermediate steps' goal positions; then we test the policy 50 times and average the loss. If the phenomenon meets our prediction, we can conclude that <strong>the history-conditioned way is much more sensitive and subtle in imitation learning</strong>.</p>
+    </div>
+
+    <p>The post offers two hypotheses for exactly this mystery:</p>
+
+    <div class="bq">
+      <p>One hypothesis is that it's due to causal confusion: the history-conditioned policy might learn to "cheat" by simply outputting the previous action, which is often highly (yet spuriously) correlated with the next action.</p>
+    </div>
+
+    <div class="think">
+      <p class="think-title">💡 My thinking · 我的思考</p>
+      <p>This can be tested by excluding the <span style="font-family:var(--font-mono)">pred_action</span> or the robot's joint state — to avoid "copying homework" from previous actions.</p>
+    </div>
+
+    <div class="bq">
+      <p>Another hypothesis is that history-conditioned policies are more susceptible to test-time distribution shift, as they simply have a larger input space. I don't have a definitive answer yet, but it's worth noting that this issue happens even in this very simple task with infinite data.</p>
+    </div>
+
+    <div class="think">
+      <p class="think-title">💡 My thinking · 我的思考</p>
+      <p>This is what I suspected above! What a coincidence!</p>
+    </div>
+
+    <h2>05 · Model scale &amp; feature scale</h2>
+
+    <div class="bq">
+      <p>History-conditioned policies being worse than non-history-conditioned ones is a pretty well-known phenomenon in robotics. Or maybe the current way of doing flow behavioral cloning, or at least the way I implemented it, is just inefficient. Though I found that other approaches like autoregressive tokenized action prediction also require similarly large models.</p>
+    </div>
+
+    <div class="think">
+      <p class="think-title">💡 My thinking · 我的思考</p>
+      <p>I am really curious about the implementation details in the discussion related to model scale. I may ask him for the code to explore further, because I always hold the guess that <strong>the current model architecture is insufficient in learning interaction with the real world</strong>.</p>
+    </div>
+
+    <div class="bq">
+      <p>For example, in manipulation tasks, policies that focus on the object would generalize better than those that focus on internal joint angles. I additionally compared two variants of standardized features, where I applied an additional scaling to the coordinates of the object and gripper by 0.1 and 10.</p>
+    </div>
+
+    <div class="think">
+      <p class="think-title">💡 My thinking · 我的思考</p>
+      <p>Why does the scale matter for feature learning?</p>
+    </div>
+
+    <h2>06 · The way forward</h2>
+
+    <div class="bq">
+      <p>There seem to be two potential solutions to this issue. One is to use fully history-conditioned, autoregressive policies. Another is to use hierarchical policies that first output a detailed plan that kills off multimodality, so that the low-level policy can be more Markovian. Of course, these solutions are non-trivial and are research topics in themselves, but I think we'll eventually need to close this expressivity gap to further scale up robotics.</p>
+    </div>
+
+    <div class="think">
+      <p class="think-title">💡 My thinking · 我的思考</p>
+      <p>The second solution — <strong>a high-level plan that kills off multimodality so the low level can be more Markovian</strong> — is precisely the open question my own research proposal takes on: an intent-driven dual-layer VLA framework where the upper layer keeps re-planning from the visual stream while the frozen lower layer executes skills.</p>
+    </div>
+
+    <div class="doc-footer">
+      <p>Related:</p>
+      <div class="next-docs">
+        <a href="research-proposal.html">← My Research Proposal (takes on this question)</a>
+        <a href="research-independent-thinking.html">Independent Thinking →</a>
+        <a href="articles.html">All articles →</a>
+      </div>
+    </div>
+  </main>
+
+</body>
+</html>
