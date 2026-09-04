@@ -73,6 +73,27 @@
   window.addEventListener('resize', updateSpy, { passive: true });
   updateSpy();
 
+  /* ================= Internship demo video: robust autoplay =================
+     Browsers require muted+playsinline for autoplay (both set on the element).
+     Some still block until interaction or visibility — retry on load and
+     when the video scrolls into view. Controls stay available either way. */
+  var demoVideo = document.querySelector('.internship-video');
+  if (demoVideo) {
+    var tryPlay = function () {
+      var p = demoVideo.play();
+      if (p && p.catch) p.catch(function () { /* autoplay blocked — user can press play */ });
+    };
+    tryPlay();
+    if ('IntersectionObserver' in window) {
+      var videoObs = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) { tryPlay(); videoObs.unobserve(entry.target); }
+        });
+      }, { threshold: 0.25 });
+      videoObs.observe(demoVideo);
+    }
+  }
+
   /* ================= Scroll-reveal (subtle fade-up) ================= */
   var revealEls = document.querySelectorAll(
     '.section, .project-card, .note-group, .skill-card, .award-card, .stat'

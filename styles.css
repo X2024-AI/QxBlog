@@ -502,6 +502,13 @@ html[data-lang="zh"] [data-i18n="zh"] { display: revert; }
 .internship-video { margin-top: 18px; width: 100%; border-radius: 12px; border: 1px solid var(--line); background: #000; }
 .internship-video-label { margin-top: 20px; font-family: var(--font-mono); font-size: .8rem; color: var(--muted); }
 .internship-link { margin-top: 14px; }
+.internship-links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.internship-links a {
+  font-size: .82rem; font-weight: 600; color: var(--accent-ink);
+  background: var(--accent-soft); border: 1px solid var(--accent-line);
+  padding: 4px 12px; border-radius: 999px; text-decoration: none;
+}
+.internship-links a:hover { border-color: var(--accent); }
 @media (max-width: 720px) { .internship-grid { grid-template-columns: 1fr; } }
 
 /* ============ Timeline (experience / journey) ============ */

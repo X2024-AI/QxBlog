@@ -38,86 +38,162 @@
 
   <main class="doc">
 
-    <section class="collection">
-      <h2 class="collection-title">Research · 研究</h2>
+    <div class="view-toggle">
+      <button class="view-btn active" id="btnCollections" type="button">按合集 · By collection</button>
+      <button class="view-btn" id="btnTimeline" type="button">按时间 · By time (newest first)</button>
+    </div>
+
+    <div id="view-collections">
+      <section class="collection">
+        <h2 class="collection-title">Research · 研究</h2>
+        <div class="collection-list">
+          <a class="article-card" href="research-proposal.html">
+            <div>
+              <p class="article-title">Research Proposal · 研究计划</p>
+              <p class="article-desc">时序意图驱动的双层视觉-语言操纵框架——面向长时序任务的闭环鲁棒执行。</p>
+            </div>
+            <span class="article-meta"><span class="article-date">2026/08</span><span class="article-arrow">→</span></span>
+          </a>
+          <a class="article-card" href="research-independent-thinking.html">
+            <div>
+              <p class="article-title">Independent Thinking · 科研独立思考</p>
+              <p class="article-desc">反行为克隆、大脑-小脑架构、主动感知，以及一批尚未被回答的研究问题。</p>
+            </div>
+            <span class="article-meta"><span class="article-date">2026/08</span><span class="article-arrow">→</span></span>
+          </a>
+        </div>
+      </section>
+
+      <section class="collection">
+        <h2 class="collection-title">Experience · 经历</h2>
+        <div class="collection-list">
+          <a class="article-card" href="lingbot-va-internship.html">
+            <div>
+              <p class="article-title">Internship · LingBot-VA · 实习</p>
+              <p class="article-desc">2.65× 推理加速、逐位一致——实时视频-动作机器人策略的完整优化与部署。</p>
+            </div>
+            <span class="article-meta"><span class="article-date">2026/08</span><span class="article-arrow">→</span></span>
+          </a>
+        </div>
+      </section>
+
+      <section class="collection">
+        <h2 class="collection-title">Engineering · 工程</h2>
+        <div class="collection-list">
+          <a class="article-card" href="lingbot-va-inference-sop.html">
+            <div>
+              <p class="article-title">Inference-Speedup SOP · 推理优化方法论<span class="article-badge">Internship</span></p>
+              <p class="article-desc">逐因素、分步骤的性能优化流程——先剖析、后优化。</p>
+            </div>
+            <span class="article-meta"><span class="article-date">2026/08</span><span class="article-arrow">→</span></span>
+          </a>
+          <a class="article-card" href="lingbot-va-deployment.html">
+            <div>
+              <p class="article-title">Deployment &amp; Ops · 部署运维<span class="article-badge">Internship</span></p>
+              <p class="article-desc">共享 GPU 集群上的服务、评测与监控——完整命令与坑点。</p>
+            </div>
+            <span class="article-meta"><span class="article-date">2026/08</span><span class="article-arrow">→</span></span>
+          </a>
+        </div>
+      </section>
+
+      <section class="collection">
+        <h2 class="collection-title">Reading Notes · 阅读笔记</h2>
+        <div class="collection-list">
+          <a class="article-card" href="pi05-bc-mystery-note.html">
+            <div>
+              <p class="article-title">Extended Thinking after pi0.5 deployment · Reading "Behavioral Cloning Mystery"<span class="article-badge">Internship</span></p>
+              <p class="article-desc">真机数据、开环控制与历史条件策略——逐段笔记与延伸思考，含一个可检验的实验设计。</p>
+            </div>
+            <span class="article-meta"><span class="article-date">2026/09</span><span class="article-arrow">→</span></span>
+          </a>
+        </div>
+      </section>
+
+      <section class="collection">
+        <h2 class="collection-title">Learning Notes · 学习笔记</h2>
+        <div class="collection-list">
+          <a class="article-card" href="https://www.xiaohongshu.com/user/profile/674b2ab1000000001d02c51f" target="_blank" rel="noopener">
+            <div>
+              <p class="article-title">小红书 · RL 强化学习笔记</p>
+              <p class="article-desc">SAC · PPO · Policy Gradient，持续更新中。</p>
+            </div>
+            <span class="article-meta"><span class="article-date">持续更新</span><span class="article-arrow">↗</span></span>
+          </a>
+        </div>
+      </section>
+    </div>
+
+    <div id="view-timeline" style="display:none">
+      <h2 class="time-group-label">2026 / 09</h2>
       <div class="collection-list">
-        <a class="article-card" href="research-proposal.html">
+        <a class="article-card" href="pi05-bc-mystery-note.html">
           <div>
-            <p class="article-title">Research Proposal · 研究计划</p>
-            <p class="article-desc">时序意图驱动的双层视觉-语言操纵框架——面向长时序任务的闭环鲁棒执行。</p>
+            <p class="article-title">Extended Thinking after pi0.5 deployment · Reading "Behavioral Cloning Mystery"<span class="article-badge">Internship</span></p>
+            <p class="article-desc">真机数据、开环控制与历史条件策略——逐段笔记与延伸思考，含一个可检验的实验设计。</p>
           </div>
-          <span class="article-meta"><span class="article-date">2026/08</span><span class="article-arrow">→</span></span>
+          <span class="article-meta"><span class="article-date">2026/09/04</span><span class="article-arrow">→</span></span>
+        </a>
+      </div>
+
+      <h2 class="time-group-label">2026 / 08</h2>
+      <div class="collection-list">
+        <a class="article-card" href="lingbot-va-deployment.html">
+          <div>
+            <p class="article-title">Deployment &amp; Ops · 部署运维<span class="article-badge">Internship</span></p>
+            <p class="article-desc">共享 GPU 集群上的服务、评测与监控——完整命令与坑点。</p>
+          </div>
+          <span class="article-meta"><span class="article-date">2026/08/29</span><span class="article-arrow">→</span></span>
+        </a>
+        <a class="article-card" href="lingbot-va-inference-sop.html">
+          <div>
+            <p class="article-title">Inference-Speedup SOP · 推理优化方法论<span class="article-badge">Internship</span></p>
+            <p class="article-desc">逐因素、分步骤的性能优化流程——先剖析、后优化。</p>
+          </div>
+          <span class="article-meta"><span class="article-date">2026/08/28</span><span class="article-arrow">→</span></span>
+        </a>
+        <a class="article-card" href="lingbot-va-internship.html">
+          <div>
+            <p class="article-title">Internship · LingBot-VA · 实习</p>
+            <p class="article-desc">2.65× 推理加速、逐位一致——实时视频-动作机器人策略的完整优化与部署。</p>
+          </div>
+          <span class="article-meta"><span class="article-date">2026/08/27</span><span class="article-arrow">→</span></span>
         </a>
         <a class="article-card" href="research-independent-thinking.html">
           <div>
             <p class="article-title">Independent Thinking · 科研独立思考</p>
             <p class="article-desc">反行为克隆、大脑-小脑架构、主动感知，以及一批尚未被回答的研究问题。</p>
           </div>
-          <span class="article-meta"><span class="article-date">2026/08</span><span class="article-arrow">→</span></span>
+          <span class="article-meta"><span class="article-date">2026/08/25</span><span class="article-arrow">→</span></span>
+        </a>
+        <a class="article-card" href="research-proposal.html">
+          <div>
+            <p class="article-title">Research Proposal · 研究计划</p>
+            <p class="article-desc">时序意图驱动的双层视觉-语言操纵框架——面向长时序任务的闭环鲁棒执行。</p>
+          </div>
+          <span class="article-meta"><span class="article-date">2026/08/17</span><span class="article-arrow">→</span></span>
         </a>
       </div>
-    </section>
-
-    <section class="collection">
-      <h2 class="collection-title">Experience · 经历</h2>
-      <div class="collection-list">
-        <a class="article-card" href="lingbot-va-internship.html">
-          <div>
-            <p class="article-title">Internship · LingBot-VA · 实习</p>
-            <p class="article-desc">2.65× 推理加速、逐位一致——实时视频-动作机器人策略的完整优化与部署。</p>
-          </div>
-          <span class="article-meta"><span class="article-date">2026/08</span><span class="article-arrow">→</span></span>
-        </a>
-      </div>
-    </section>
-
-    <section class="collection">
-      <h2 class="collection-title">Engineering · 工程</h2>
-      <div class="collection-list">
-        <a class="article-card" href="lingbot-va-inference-sop.html">
-          <div>
-            <p class="article-title">Inference-Speedup SOP · 推理优化方法论</p>
-            <p class="article-desc">逐因素、分步骤的性能优化流程——先剖析、后优化。</p>
-          </div>
-          <span class="article-meta"><span class="article-date">2026/08</span><span class="article-arrow">→</span></span>
-        </a>
-        <a class="article-card" href="lingbot-va-deployment.html">
-          <div>
-            <p class="article-title">Deployment &amp; Ops · 部署运维</p>
-            <p class="article-desc">共享 GPU 集群上的服务、评测与监控——完整命令与坑点。</p>
-          </div>
-          <span class="article-meta"><span class="article-date">2026/08</span><span class="article-arrow">→</span></span>
-        </a>
-      </div>
-    </section>
-
-    <section class="collection">
-      <h2 class="collection-title">Reading Notes · 阅读笔记</h2>
-      <div class="collection-list">
-        <a class="article-card" href="pi05-bc-mystery-note.html">
-          <div>
-            <p class="article-title">The Note of pi0.5 · Reading "Behavioral Cloning Mystery"</p>
-            <p class="article-desc">真机数据、开环控制与历史条件策略——逐段笔记与延伸思考，含一个可检验的实验设计。</p>
-          </div>
-          <span class="article-meta"><span class="article-date">2026/09</span><span class="article-arrow">→</span></span>
-        </a>
-      </div>
-    </section>
-
-    <section class="collection">
-      <h2 class="collection-title">Learning Notes · 学习笔记</h2>
-      <div class="collection-list">
-        <a class="article-card" href="https://www.xiaohongshu.com/user/profile/674b2ab1000000001d02c51f" target="_blank" rel="noopener">
-          <div>
-            <p class="article-title">小红书 · RL 强化学习笔记</p>
-            <p class="article-desc">SAC · PPO · Policy Gradient，持续更新中。</p>
-          </div>
-          <span class="article-meta"><span class="article-date">持续更新</span><span class="article-arrow">↗</span></span>
-        </a>
-      </div>
-    </section>
+    </div>
 
   </main>
+
+  <script>
+    (function () {
+      var btnC = document.getElementById('btnCollections');
+      var btnT = document.getElementById('btnTimeline');
+      var vC = document.getElementById('view-collections');
+      var vT = document.getElementById('view-timeline');
+      function show(isCollections) {
+        vC.style.display = isCollections ? '' : 'none';
+        vT.style.display = isCollections ? 'none' : '';
+        btnC.classList.toggle('active', isCollections);
+        btnT.classList.toggle('active', !isCollections);
+      }
+      btnC.addEventListener('click', function () { show(true); });
+      btnT.addEventListener('click', function () { show(false); });
+    })();
+  </script>
 
 </body>
 </html>

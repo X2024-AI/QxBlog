@@ -157,6 +157,26 @@
   .article-meta { align-self: flex-end; }
 }
 
+/* Articles page: view toggle, time groups, internship badge */
+.view-toggle { display: flex; gap: 8px; margin: 4px 0 10px; }
+.view-btn {
+  font-family: var(--font-mono); font-size: .78rem; font-weight: 600;
+  color: var(--muted); background: var(--card); border: 1px solid var(--line);
+  border-radius: 999px; padding: 6px 16px; cursor: pointer;
+}
+.view-btn.active { color: var(--accent-ink); background: var(--accent-soft); border-color: var(--accent-line); }
+.time-group-label {
+  font-family: var(--font-mono); font-size: .8rem; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--accent-ink);
+  border-bottom: 1px solid var(--line); padding-bottom: 10px; margin: 26px 0 14px;
+}
+.article-badge {
+  display: inline-block; font-family: var(--font-mono); font-size: .62rem; font-weight: 700;
+  letter-spacing: .05em; text-transform: uppercase;
+  color: #8F6200; background: var(--warm-tint); border: 1px solid var(--warm-line);
+  padding: 2px 8px; border-radius: 999px; margin-left: 8px; vertical-align: middle;
+}
+
 /* Warm "paper" theme for the articles page */
 .warm-page { background: var(--warm-bg); }
 .warm-page .doc-nav { background: rgba(255, 248, 243, .92); }
