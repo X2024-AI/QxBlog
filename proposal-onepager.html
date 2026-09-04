@@ -11,17 +11,17 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
     width: 210mm; min-height: 296mm;
-    padding: 11mm 13mm 9mm;
+    padding: 10mm 13mm 8mm;
     font-family: 'Noto Sans SC','Noto Sans CJK SC','AR PL UKai CN',sans-serif;
-    color: #393B42; font-size: 10.5px; line-height: 1.6;
+    color: #393B42; font-size: 10.5px; line-height: 1.55;
   }
-  .hdr { border-bottom: 2.5px solid #18191B; padding-bottom: 8px; margin-bottom: 10px; }
+  .hdr { border-bottom: 2.5px solid #18191B; padding-bottom: 7px; margin-bottom: 9px; }
   .hdr h1 { font-size: 19px; font-weight: 900; color: #18191B; letter-spacing: .02em; }
   .hdr .sub { font-size: 11.5px; color: #3B5B9E; font-weight: 700; margin-top: 2px; }
-  .hdr .who { font-size: 9.5px; color: #AAACB5; margin-top: 5px; }
+  .hdr .who { font-size: 9.5px; color: #AAACB5; margin-top: 4px; }
   .hdr .who b { color: #393B42; font-weight: 700; }
   .sec-t {
-    font-size: 11.5px; font-weight: 900; color: #18191B; margin: 9px 0 5px;
+    font-size: 11.5px; font-weight: 900; color: #18191B; margin: 8px 0 5px;
     display: flex; align-items: center; gap: 7px;
   }
   .sec-t::before { content: ""; width: 4px; height: 13px; background: #6795ED; border-radius: 1px; }
@@ -32,19 +32,17 @@
   .abstract b { color: #18191B; }
   svg text { font-family: 'Noto Sans SC','Noto Sans CJK SC',sans-serif; }
   .tl { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
-  .tl .ph {
-    background: #F1F2F6; border: 1px solid #E4E6EC; border-radius: 6px; padding: 7px 9px;
-  }
+  .tl .ph { background: #F1F2F6; border: 1px solid #E4E6EC; border-radius: 6px; padding: 6px 9px; }
   .tl .ph h4 { font-size: 10px; color: #18191B; font-weight: 900; }
-  .tl .ph .rng { font-size: 8.5px; font-family: 'JetBrains Mono',monospace; color: #3B5B9E; font-weight: 700; }
+  .tl .ph .rng { font-size: 8.5px; font-family: monospace; color: #3B5B9E; font-weight: 700; }
   .tl .ph ul { margin: 3px 0 0 11px; }
-  .tl .ph li { font-size: 9px; margin: 1.5px 0; }
+  .tl .ph li { font-size: 8.8px; margin: 1.5px 0; }
   .base {
-    margin-top: 8px; background: #E9EFFB; border: 1px solid #D3DFF7; border-radius: 6px;
-    padding: 6px 10px; font-size: 9.3px; text-align: justify;
+    margin-top: 7px; background: #E9EFFB; border: 1px solid #D3DFF7; border-radius: 6px;
+    padding: 5px 10px; font-size: 9.2px; text-align: justify;
   }
   .base b { color: #3B5B9E; }
-  .foot { margin-top: 7px; padding-top: 5px; border-top: 1px solid #E4E6EC;
+  .foot { margin-top: 6px; padding-top: 5px; border-top: 1px solid #E4E6EC;
     font-size: 8.3px; color: #AAACB5; display: flex; justify-content: space-between; }
 </style>
 </head>
@@ -52,77 +50,93 @@
 
   <div class="hdr">
     <h1>时序意图驱动的双层视觉-语言操纵框架</h1>
-    <div class="sub">—— 面向长时序任务的闭环鲁棒执行 · 研究设想（一页纸）</div>
-    <div class="who"><b>杨骞玺</b> · 北京理工大学 机器人工程 2024 级（准大三，专业排名 2/32，GPA 3.88/4.0） · 15680911723 · 2608883535@qq.com</div>
+    <div class="sub">—— 面向长时序任务的语义级闭环执行 · 研究设想（一页纸）</div>
+    <div class="who"><b>杨骞玺</b> · 北京理工大学 机器人工程 2024 级（大三，专业排名 2/32，GPA 3.88/4.0） · 15680911723 · 2608883535@qq.com</div>
   </div>
 
   <div class="sec-t">摘要</div>
   <div class="abstract">
-    针对当前 VLA 在长时序操纵任务中<b>开环执行、异常无法自适应恢复</b>的核心痛点，本研究提出<b>双层时序意图驱动架构</b>：仅保留高层规划器与低层执行器，以统一的<b>语义意图向量</b>（CLIP 对齐空间）为分层接口，将任务状态评估、异常感知与重规划<b>完全内化于高层时序建模</b>，无需独立监督模块；低层通过意图引导视觉显著图与扩散策略生成目标位姿，结合自监督本体逆动力学模型输出关节指令。训练上高低层<b>完全解耦</b>（低层冻结后，高层行为克隆预训练 + PPO 微调），规避分层联合训练的不稳定性。目标：<b>任务级语义闭环执行、技能重组与零样本泛化</b>。
+    针对现有 VLA <b>开环执行、无任务级目标理解</b>的痛点，提出时序意图驱动的双层框架，遵循"如无必要勿增实体"：仅保留规划与执行两层，以 CLIP 对齐的<b>语义意图向量</b>为唯一接口，将状态判断、异常检测与重规划<b>完全内化</b>——任务完成度由<b>视觉-意图语义相似度</b>天然度量，异常感知与重规划是时序 Transformer 推理的自然输出，无需独立监督器。低层为意图引导的通用执行器（意图显著图 + 扩散策略 FiLM 注入 + 自监督逆动力学），经<b>三阶段混合训练</b>（多源 BC 预训练 → HER 目标条件 RL 微调 → 自监督物理交互微调）突破模仿学习的分布限制，实现<b>语义级闭环：异常时自主感知、自主重规划、自动重执行</b>。
   </div>
 
   <div class="sec-t">框架图</div>
-  <svg viewBox="0 0 712 296" width="100%">
+  <svg viewBox="0 0 712 336" width="100%">
     <defs>
-      <marker id="ar" markerWidth="8" markerHeight="8" refX="6.5" refY="3" orient="auto">
-        <path d="M0,0 L7,3 L0,6 Z" fill="#393B42"/>
-      </marker>
-      <marker id="arB" markerWidth="8" markerHeight="8" refX="6.5" refY="3" orient="auto">
-        <path d="M0,0 L7,3 L0,6 Z" fill="#6795ED"/>
-      </marker>
+      <marker id="ar" markerWidth="8" markerHeight="8" refX="6.5" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#393B42"/></marker>
+      <marker id="arA" markerWidth="8" markerHeight="8" refX="6.5" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#EDA304"/></marker>
+      <marker id="arB" markerWidth="8" markerHeight="8" refX="6.5" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#6795ED"/></marker>
     </defs>
 
     <!-- 输入 -->
-    <rect x="30" y="6" width="360" height="34" rx="6" fill="#F1F2F6" stroke="#E4E6EC"/>
-    <text x="210" y="21" text-anchor="middle" font-size="10" font-weight="700" fill="#18191B">输入：语言任务指令 · 滑动窗口视觉序列 · 本体状态序列</text>
-    <text x="210" y="33" text-anchor="middle" font-size="7.5" fill="#AAACB5">（持续观测，非一次性输入 —— 闭环的来源）</text>
+    <rect x="24" y="6" width="352" height="30" rx="6" fill="#F1F2F6" stroke="#E4E6EC"/>
+    <text x="200" y="25" text-anchor="middle" font-size="9.5" font-weight="700" fill="#18191B">输入：语言任务指令 · 滑动窗口视觉序列 ·（可扩展触觉/力觉）</text>
 
     <!-- 高层 -->
-    <rect x="30" y="60" width="360" height="58" rx="8" fill="#FEFEFE" stroke="#6795ED" stroke-width="1.6"/>
-    <text x="210" y="77" text-anchor="middle" font-size="11" font-weight="900" fill="#18191B">高层 · 时序意图规划器（“大脑”）</text>
-    <text x="210" y="92" text-anchor="middle" font-size="8.5" fill="#393B42">冻结 CLIP 文本编码 + DINOv2-small 帧特征</text>
-    <text x="210" y="105" text-anchor="middle" font-size="8.5" fill="#393B42">时序 Transformer 交叉注意力 → 建模任务动态进程</text>
+    <rect x="24" y="52" width="352" height="78" rx="8" fill="#FEFEFE" stroke="#6795ED" stroke-width="1.6"/>
+    <text x="200" y="68" text-anchor="middle" font-size="10.5" font-weight="900" fill="#18191B">高层 · 时序意图规划层（“大脑”）</text>
+    <text x="200" y="83" text-anchor="middle" font-size="8.4" fill="#393B42">① CLIP 统一编码：指令嵌入 + 逐帧视觉嵌入（同一语义空间）</text>
+    <text x="200" y="95" text-anchor="middle" font-size="8.4" fill="#393B42">② 状态感知：sim(视觉嵌入, 意图) 时序 = 任务完成度（无监督器）</text>
+    <text x="200" y="107" text-anchor="middle" font-size="8.4" fill="#393B42">③ 时序 Transformer：异常感知与重规划 = 推理的自然输出</text>
+    <text x="200" y="121" text-anchor="middle" font-size="7.8" fill="#AAACB5">异常序列由仿真扰动注入 / 真机失败数据 / HER 重标注构造</text>
 
     <!-- 意图向量 -->
-    <rect x="122" y="134" width="176" height="24" rx="12" fill="#F9F0EA" stroke="#EDA304" stroke-width="1.4"/>
-    <text x="210" y="150" text-anchor="middle" font-size="9.5" font-weight="900" fill="#B07B00">语义意图向量（每 10~20 步更新）</text>
+    <rect x="112" y="144" width="176" height="24" rx="12" fill="#F9F0EA" stroke="#EDA304" stroke-width="1.4"/>
+    <text x="200" y="160" text-anchor="middle" font-size="9.5" font-weight="900" fill="#B07B00">语义意图向量 g_t（10~20 步 / 事件触发更新）</text>
 
     <!-- 低层 -->
-    <rect x="30" y="174" width="360" height="58" rx="8" fill="#FEFEFE" stroke="#18191B" stroke-width="1.2"/>
-    <text x="210" y="191" text-anchor="middle" font-size="11" font-weight="900" fill="#18191B">低层 · 意图引导执行器（“小脑”，冻结）</text>
-    <text x="210" y="206" text-anchor="middle" font-size="8.5" fill="#393B42">意图引导视觉显著图 → Diffusion Policy 目标位姿</text>
-    <text x="210" y="219" text-anchor="middle" font-size="8.5" fill="#393B42">自监督本体逆动力学（婴儿式身体探索）→ 关节指令</text>
+    <rect x="24" y="184" width="352" height="78" rx="8" fill="#FEFEFE" stroke="#18191B" stroke-width="1.2"/>
+    <text x="200" y="200" text-anchor="middle" font-size="10.5" font-weight="900" fill="#18191B">低层 · 意图引导执行层（“小脑”，冻结）</text>
+    <text x="200" y="215" text-anchor="middle" font-size="8.4" fill="#393B42">① 意图引导显著图：聚焦操作物体与本体末端（交叉注意力）</text>
+    <text x="200" y="227" text-anchor="middle" font-size="8.4" fill="#393B42">② 扩散策略（FiLM 注入 g_t）：输出末端 6-DoF 位姿轨迹</text>
+    <text x="200" y="239" text-anchor="middle" font-size="8.4" fill="#393B42">③ 自监督逆动力学（婴儿式身体探索）：毫秒级位姿→关节角</text>
+    <text x="200" y="253" text-anchor="middle" font-size="7.8" fill="#AAACB5">与硬件解耦：换构型仅重训本体模型，上层策略复用</text>
 
     <!-- 机器人 -->
-    <rect x="130" y="248" width="160" height="30" rx="6" fill="#18191B"/>
-    <text x="210" y="267" text-anchor="middle" font-size="10" font-weight="700" fill="#FFFFFF">OpenArm 双臂机器人</text>
+    <rect x="124" y="278" width="152" height="28" rx="6" fill="#18191B"/>
+    <text x="200" y="296" text-anchor="middle" font-size="9.5" font-weight="700" fill="#FFFFFF">OpenArm 双臂机器人</text>
 
     <!-- 主链路箭头 -->
-    <line x1="210" y1="40" x2="210" y2="57" stroke="#393B42" stroke-width="1.4" marker-end="url(#ar)"/>
-    <line x1="210" y1="118" x2="210" y2="131" stroke="#EDA304" stroke-width="1.6" marker-end="url(#ar)"/>
-    <line x1="210" y1="158" x2="210" y2="171" stroke="#EDA304" stroke-width="1.6" marker-end="url(#ar)"/>
-    <line x1="210" y1="232" x2="210" y2="245" stroke="#393B42" stroke-width="1.4" marker-end="url(#ar)"/>
+    <line x1="200" y1="36" x2="200" y2="49" stroke="#393B42" stroke-width="1.4" marker-end="url(#ar)"/>
+    <line x1="200" y1="130" x2="200" y2="141" stroke="#EDA304" stroke-width="1.6" marker-end="url(#arA)"/>
+    <line x1="200" y1="168" x2="200" y2="181" stroke="#EDA304" stroke-width="1.6" marker-end="url(#arA)"/>
+    <line x1="200" y1="262" x2="200" y2="275" stroke="#393B42" stroke-width="1.4" marker-end="url(#ar)"/>
 
-    <!-- 闭环反馈（右侧） -->
-    <path d="M 420 263 L 480 263 L 480 89 L 396 89" fill="none" stroke="#6795ED" stroke-width="1.6" stroke-dasharray="5,3" marker-end="url(#arB)"/>
-    <text x="536" y="150" text-anchor="middle" font-size="8.6" fill="#3B5B9E" font-weight="700">视觉时序反馈</text>
-    <text x="536" y="163" text-anchor="middle" font-size="8.2" fill="#393B42">异常自动激活隐藏状态</text>
-    <text x="536" y="175" text-anchor="middle" font-size="8.2" fill="#393B42">输出新意图 —— 无需触发信号</text>
-    <rect x="452" y="188" width="168" height="42" rx="6" fill="#E9EFFB" stroke="#D3DFF7"/>
-    <text x="536" y="203" text-anchor="middle" font-size="8.2" fill="#18191B" font-weight="700">典型场景：移动中杯子掉落</text>
-    <text x="536" y="216" text-anchor="middle" font-size="8.2" fill="#393B42">高层自动切换意图 →</text>
-    <text x="536" y="226" text-anchor="middle" font-size="8.2" fill="#393B42">“抓取地面上的杯子”，低层重执行</text>
+    <!-- 右侧：相似度监测曲线（核心新机制） -->
+    <rect x="416" y="6" width="278" height="124" rx="8" fill="#FEFEFE" stroke="#6795ED" stroke-width="1.4"/>
+    <text x="555" y="22" text-anchor="middle" font-size="9.5" font-weight="900" fill="#18191B">无监督器状态感知：相似度时序曲线</text>
+    <!-- 坐标轴 -->
+    <line x1="440" y1="104" x2="676" y2="104" stroke="#C4C9D4" stroke-width="1"/>
+    <line x1="440" y1="104" x2="440" y2="34" stroke="#C4C9D4" stroke-width="1"/>
+    <!-- 相似度曲线：上升→骤降→恢复 -->
+    <path d="M 440 98 C 460 92, 470 78, 488 68 C 505 60, 515 56, 530 52 L 548 50 C 556 50, 560 76, 572 88 L 588 92 C 602 62, 618 48, 640 42 L 672 39"
+          fill="none" stroke="#6795ED" stroke-width="2.2"/>
+    <!-- 异常标记 -->
+    <circle cx="548" cy="50" r="3.4" fill="#EDA304"/>
+    <line x1="548" y1="50" x2="548" y2="104" stroke="#EDA304" stroke-width="1" stroke-dasharray="3,2"/>
+    <text x="548" y="117" text-anchor="middle" font-size="7.8" fill="#B07B00" font-weight="700">杯子掉落：sim 骤降</text>
+    <circle cx="572" cy="88" r="3" fill="#D64545"/>
+    <text x="475" y="45" font-size="7.8" fill="#AAACB5">sim(o_t, g)</text>
+    <text x="668" y="115" text-anchor="end" font-size="7.8" fill="#AAACB5">时间 t →</text>
+    <text x="612" y="60" font-size="7.8" fill="#3B5B9E">→ g_regrasp 重抓恢复</text>
+    <text x="470" y="94" font-size="7.8" fill="#3B5B9E">正常推进稳步上升</text>
 
-    <!-- 左侧标注：训练解耦 -->
-    <rect x="14" y="140" width="0" height="0"/>
-    <text x="20" y="150" font-size="8" fill="#AAACB5" writing-mode="tb"></text>
+    <!-- 右侧：三阶段混合训练 -->
+    <rect x="416" y="146" width="278" height="88" rx="8" fill="#F1F2F6" stroke="#E4E6EC"/>
+    <text x="555" y="162" text-anchor="middle" font-size="9.5" font-weight="900" fill="#18191B">低层泛化：三阶段混合训练（难点 1）</text>
+    <text x="555" y="178" text-anchor="middle" font-size="8.2" fill="#393B42">① 多源 BC 预训练：公开数据 + 脚本生成 + 全域随机化</text>
+    <text x="555" y="192" text-anchor="middle" font-size="8.2" fill="#393B42">② 目标条件 RL + HER：失败轨迹重标记，CLIP 相似度作奖励</text>
+    <text x="555" y="206" text-anchor="middle" font-size="8.2" fill="#393B42">“复刻演示” → “主动调整动作直至达成目标”</text>
+    <text x="555" y="220" text-anchor="middle" font-size="8.2" fill="#393B42">③ 自监督物理交互微调：随机试错建立接触动力学直觉</text>
 
-    <!-- 训练策略标签 -->
-    <rect x="452" y="18" width="168" height="58" rx="6" fill="#F1F2F6" stroke="#E4E6EC"/>
-    <text x="536" y="33" text-anchor="middle" font-size="8.8" font-weight="900" fill="#18191B">训练策略：高低层完全解耦</text>
-    <text x="536" y="46" text-anchor="middle" font-size="8" fill="#393B42">① 低层：目标条件示教单独训练后冻结</text>
-    <text x="536" y="57" text-anchor="middle" font-size="8" fill="#393B42">② 高层：子目标意图 BC 预训练</text>
-    <text x="536" y="68" text-anchor="middle" font-size="8" fill="#393B42">＋任务成功率奖励 PPO 微调切换时机</text>
+    <!-- 右侧：闭环场景 -->
+    <rect x="416" y="250" width="278" height="56" rx="8" fill="#E9EFFB" stroke="#D3DFF7"/>
+    <text x="555" y="266" text-anchor="middle" font-size="8.8" font-weight="900" fill="#18191B">闭环场景（移动中杯子掉落）</text>
+    <text x="555" y="280" text-anchor="middle" font-size="8.2" fill="#393B42">视觉嵌入突变为“杯子在地面” → sim 骤降 → 时序 Transformer</text>
+    <text x="555" y="293" text-anchor="middle" font-size="8.2" fill="#393B42">捕捉突变 → 输出 g_regrasp → 低层重定位重抓 → 子任务续行</text>
+
+    <!-- 反馈虚线：机器人 → 高层（视觉反馈） -->
+    <path d="M 276 292 L 386 292 L 386 91 L 380 91" fill="none" stroke="#6795ED" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arB)"/>
+    <text x="398" y="196" font-size="7.6" fill="#3B5B9E" font-weight="700" transform="rotate(90 398 196)">视觉序列持续反馈</text>
   </svg>
 
   <div class="sec-t">研究进度</div>
@@ -130,17 +144,17 @@
     <div class="ph">
       <h4>基础搭建与核心验证 <span class="rng">0–3 月</span></h4>
       <ul>
-        <li>Isaac Gym / RLBench 环境，复现 Diffusion Policy 与类 π0.5 双层基线</li>
-        <li>实现低层执行器与自监督本体模型</li>
-        <li>打通端到端闭环，3–5 个长时序任务初验</li>
+        <li>Isaac Gym / RLBench 环境；复现 Diffusion Policy 与类 π0.5 基线；搭建 CLIP 语义接口</li>
+        <li>低层多源 BC 预训练 + 自监督本体逆动力学</li>
+        <li>高层时序规划器，打通端到端闭环；3–5 任务初验</li>
       </ul>
     </div>
     <div class="ph">
       <h4>实验完善与论文撰写 <span class="rng">3–6 月</span></h4>
       <ul>
-        <li>完整基准测试、消融实验</li>
-        <li>零样本任务组合泛化验证</li>
-        <li>撰写论文，目标 ICRA / IROS / CoRL</li>
+        <li>HER 目标条件 RL 微调 + 自监督物理微调，验证泛化与闭环恢复</li>
+        <li>完整基准测试、消融、零样本任务组合</li>
+        <li>撰写论文，投稿 ICRA / IROS / CoRL</li>
       </ul>
     </div>
     <div class="ph">
@@ -154,12 +168,12 @@
   </div>
 
   <div class="base">
-    <b>已有基础：</b>pi0.5 真机全流程部署（OpenArm 双臂，150 条示教 / 30k 步微调 / RTC，成功率 90%+） · LingBot-VA 世界模型推理优化 12s→2s · ACT 插销任务 12%→86%（数据质量诊断） · Diffusion Policy 复现与扩散步数消融 · Isaac Gym 从零搭建 BC 全管线 · CET-6 577。完整 Proposal 与阅读笔记可面谈时呈报。
+    <b>已有基础：</b>pi0.5 真机全流程部署（OpenArm 双臂，150 条示教 / 30k 步微调 / RTC，成功率 90%+） · LingBot-VA 世界模型推理优化 12s→2s · ACT 插销任务 12%→86%（数据质量诊断） · Diffusion Policy 复现与消融 · Isaac Gym 从零搭建 BC 全管线。完整 Proposal 与阅读笔记见个人网站。
   </div>
 
   <div class="foot">
-    <span>核心贡献：① 重规划内化于高层时序推理，无需外挂失败检测（“动作分解”→“目标驱动”） ② 意图引导的视觉-运动映射，可解释、可组合</span>
-    <span>2026.09</span>
+    <span>核心贡献：① 重规划内化于高层时序推理，无独立监督器（“动作分解”→“目标驱动”） ② 统一语义接口 + 三阶段混合训练 = 泛化闭环操纵</span>
+    <span>2026.09 v2</span>
   </div>
 
 </body>
