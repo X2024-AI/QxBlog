@@ -183,6 +183,30 @@
 .warm-page .article-card { background: var(--warm-card); border-color: var(--warm-line); }
 .warm-page .collection-title { border-color: var(--warm-line); }
 
+/* Side table of contents (sticky catalog) */
+.doc-layout { display: flex; justify-content: center; gap: 44px; align-items: flex-start; }
+.doc-layout .doc { margin: 0; }
+.doc-toc { display: none; }
+@media (min-width: 1180px) {
+  .doc-toc {
+    display: block; position: sticky; top: 84px;
+    width: 232px; flex-shrink: 0;
+    max-height: calc(100vh - 108px); overflow-y: auto;
+    font-size: .84rem; padding-bottom: 20px;
+  }
+}
+.doc-toc .toc-title {
+  font-family: var(--font-mono); font-size: .72rem; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--muted); margin-bottom: 10px;
+}
+.doc-toc a {
+  display: block; padding: 5px 0 5px 12px; border-left: 2px solid var(--line);
+  color: var(--body); text-decoration: none; line-height: 1.45;
+}
+.doc-toc a.lv2 { padding-left: 26px; font-size: .78rem; color: var(--muted); }
+.doc-toc a:hover { color: var(--accent-ink); border-left-color: var(--accent); }
+.doc h2, .doc h3, .doc h4 { scroll-margin-top: 78px; }
+
 /* Reading-note article: blog quotes vs. my thinking */
 .bq {
   margin: 22px 0; padding: 16px 22px;
